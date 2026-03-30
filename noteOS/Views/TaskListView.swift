@@ -107,6 +107,7 @@ struct TaskListView: View {
                             Text(store.selectedWorkspace ?? "All")
                                 .font(.system(size: 9, weight: .semibold))
                                 .lineLimit(1)
+                                .minimumScaleFactor(0.8)
                                 .truncationMode(.tail)
                         }
                         .foregroundStyle(store.selectedWorkspace == nil ? TidoDesign.Color.textSecondary : TidoDesign.Color.accent)
@@ -116,7 +117,7 @@ struct TaskListView: View {
                             (store.selectedWorkspace == nil ? Color.clear : TidoDesign.Color.accent.opacity(0.1))
                                 .continuousRoundedCorners(TidoDesign.Radius.sm)
                         )
-                        .frame(width: 55) // Fixed width so it doesn't shift the header layout when names change
+                        .frame(minWidth: 55, maxWidth: 80) // Flexible width to fit up to 10 characters cleanly
                     }
                     .buttonStyle(.plain)
                     .menuIndicator(.hidden)
