@@ -120,6 +120,7 @@ final class TaskStore: ObservableObject {
         }
         set {
             UserDefaults.standard.set(Array(newValue), forKey: customWorkspacesKey)
+            objectWillChange.send()
         }
     }
     
