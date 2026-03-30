@@ -90,11 +90,14 @@ struct TaskListView: View {
 
                         Divider()
 
-                        Button {
-                            workspaceNameInput = ""
-                            showingNewWorkspaceAlert = true
-                        } label: {
-                            Label("New Workspace...", systemImage: "plus.rectangle.on.folder")
+                        // Limit to max 5 workspaces total
+                        if store.getAvailableWorkspaces(allTasks).count < 5 {
+                            Button {
+                                workspaceNameInput = ""
+                                showingNewWorkspaceAlert = true
+                            } label: {
+                                Label("New Workspace...", systemImage: "plus.rectangle.on.folder")
+                            }
                         }
                     } label: {
                         HStack(spacing: 4) {
@@ -305,6 +308,12 @@ struct TaskListView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
             LaunchAtLoginService.shared.refreshState()
+        }
+        }
+        .onChange(of: workspaceNameInput) { _, newValue in
+            if newValue.count > 10 {
+                workspaceNameInput = String(newValue.prefix(10))
+            }
         }
         .onAppear {
             if let window = NSApplication.shared.windows.first(where: { $0.isKeyWindow || $0.isVisible }) {

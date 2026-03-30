@@ -62,6 +62,7 @@ struct CheckboxView: View {
                     .background(
                         Circle()
                             .fill(isCompleted ? TidoDesign.Color.success : Color.clear)
+                            .scaleEffect(isCompleted ? 1.0 : 0.001)
                     )
                     .frame(width: size.diameter, height: size.diameter)
                     .animation(TidoDesign.Animation.spring, value: isCompleted)
@@ -71,23 +72,28 @@ struct CheckboxView: View {
                     Image(systemName: "checkmark")
                         .font(.system(size: size.diameter * size.checkmarkScale, weight: .bold))
                         .foregroundStyle(.white)
-                        .transition(.scale(scale: 0.3).combined(with: .opacity))
+                        .transition(
+                            .asymmetric(
+                                insertion: .scale(scale: 0.1).combined(with: .opacity).animation(.spring(response: 0.35, dampingFraction: 0.4)),
+                                removal: .scale(scale: 0.1).combined(with: .opacity).animation(.easeIn(duration: 0.1))
+                            )
+                        )
                 }
             }
         }
         .contentShape(Circle())
         .onTapGesture {
             // Press animation
-            withAnimation(TidoDesign.Animation.spring) { isPressed = true }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
-                withAnimation(TidoDesign.Animation.spring) { isPressed = false }
+            withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) { isPressed = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) { isPressed = false }
             }
             onToggle()
         }
-        .scaleEffect(isPressed ? 0.85 : (isCompleted ? 1.05 : 1.0))
-        .rotationEffect(.degrees(isCompleted ? 0 : -8))
-        .animation(TidoDesign.Animation.spring, value: isCompleted)
-        .animation(TidoDesign.Animation.spring, value: isPressed)
+        .scaleEffect(isPressed ? 0.75 : (isCompleted ? 1.15 : 1.0))
+        .rotationEffect(.degrees(isPressed ? -15 : (isCompleted ? 0 : -5)))
+        .animation(.spring(response: 0.4, dampingFraction: 0.45), value: isCompleted)
+        .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
         .accessibilityLabel(isCompleted ? "Mark as incomplete" : "Mark as complete")
         .accessibilityAddTraits(.isButton)
     }

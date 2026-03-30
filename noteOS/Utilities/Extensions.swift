@@ -20,6 +20,7 @@ extension View {
         self.background(
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(isHovered ? TidoDesign.Color.rowHover : Color.clear)
+                .padding(.horizontal, TidoDesign.Spacing.xs)
                 .animation(TidoDesign.Animation.quick, value: isHovered)
         )
     }
