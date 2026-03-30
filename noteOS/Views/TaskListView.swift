@@ -33,9 +33,8 @@ struct TaskListView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 0) {
-
-        VStack(spacing: 0) {
+        ZStack {
+            VStack(spacing: 0) {
 
             // Header Toolbar
             ZStack {
@@ -66,9 +65,11 @@ struct TaskListView: View {
                                 Divider()
                                 
                                 Button {
-                                    workspaceToRename = ws
-                                    workspaceNameInput = ws
-                                    showingRenameAlert = true
+                                    withAnimation(TidoDesign.Animation.quick) {
+                                        workspaceToRename = ws
+                                        workspaceNameInput = ws
+                                        showingRenameAlert = true
+                                    }
                                 } label: {
                                     Label("Rename...", systemImage: "pencil")
                                 }
@@ -93,8 +94,10 @@ struct TaskListView: View {
                         // Limit to max 5 workspaces total
                         if store.getAvailableWorkspaces(allTasks).count < 5 {
                             Button {
-                                workspaceNameInput = ""
-                                showingNewWorkspaceAlert = true
+                                withAnimation(TidoDesign.Animation.quick) {
+                                    workspaceNameInput = ""
+                                    showingNewWorkspaceAlert = true
+                                }
                             } label: {
                                 Label("New Workspace...", systemImage: "plus.rectangle.on.folder")
                             }
@@ -278,6 +281,7 @@ struct TaskListView: View {
             }
             .padding(TidoDesign.Spacing.sm)
         }
+        }
         .contentShape(Rectangle())
         .onTapGesture {
             // Global tap to dismiss inputs and focus
@@ -289,26 +293,57 @@ struct TaskListView: View {
             }
             NSApp.keyWindow?.makeFirstResponder(nil)
         }
-        // Alerts for Workspace Management
-        .alert("Rename Workspace", isPresented: $showingRenameAlert) {
-            TextField("Workspace Name", text: $workspaceNameInput)
-            Button("Cancel", role: .cancel) { }
-            Button("Rename") {
-                store.renameWorkspace(from: workspaceToRename, to: workspaceNameInput)
-            }
-        }
-        .alert("New Workspace", isPresented: $showingNewWorkspaceAlert) {
-            TextField("Workspace Name", text: $workspaceNameInput)
-            Button("Cancel", role: .cancel) { }
-            Button("Create") {
-                if !workspaceNameInput.trimmed.isEmpty {
-                    store.selectedWorkspace = workspaceNameInput.trimmed
-                }
-            }
-        }
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
             LaunchAtLoginService.shared.refreshState()
         }
+        
+            // Custom Inline Alert Overlay
+            if showingRenameAlert || showingNewWorkspaceAlert {
+                Color.black.opacity(0.4)
+                    .edgesIgnoringSafeArea(.all)
+                    .onTapGesture { closeAlerts() }
+                
+                VStack(spacing: TidoDesign.Spacing.md) {
+                    Text(showingRenameAlert ? "Rename Workspace" : "New Workspace")
+                        .font(TidoDesign.Font.taskTitle.weight(.semibold))
+                        .foregroundStyle(TidoDesign.Color.textPrimary)
+                    
+                    TextField("Workspace Name", text: $workspaceNameInput)
+                        .textFieldStyle(.plain)
+                        .font(TidoDesign.Font.input)
+                        .padding(8)
+                        .background(TidoDesign.Color.rowHover.opacity(0.5).continuousRoundedCorners(TidoDesign.Radius.sm))
+                        .overlay(RoundedRectangle(cornerRadius: TidoDesign.Radius.sm).strokeBorder(TidoDesign.Color.separator, lineWidth: 1))
+                        .onSubmit { submitAlert() }
+                    
+                    HStack(spacing: TidoDesign.Spacing.md) {
+                        Button("Cancel") {
+                            closeAlerts()
+                        }
+                        .keyboardShortcut(.escape, modifiers: [])
+                        .buttonStyle(.plain)
+                        .foregroundStyle(TidoDesign.Color.textSecondary)
+                        
+                        Spacer()
+                        
+                        Button(showingRenameAlert ? "Rename" : "Create") {
+                            submitAlert()
+                        }
+                        .keyboardShortcut(.defaultAction)
+                        .buttonStyle(.plain)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(TidoDesign.Color.accent.continuousRoundedCorners(TidoDesign.Radius.sm))
+                        .foregroundStyle(.white)
+                    }
+                }
+                .padding(TidoDesign.Spacing.lg)
+                .background(Material.regular, in: RoundedRectangle(cornerRadius: TidoDesign.Radius.lg, style: .continuous))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, y: 4)
+                .frame(width: 260)
+                .transition(.scale(scale: 0.95).combined(with: .opacity))
+                .zIndex(100)
+            }
         }
         .onChange(of: workspaceNameInput) { _, newValue in
             if newValue.count > 10 {
@@ -321,5 +356,26 @@ struct TaskListView: View {
                 window.level = .popUpMenu
             }
         }
+    }
+
+    // MARK: - Custom Alert Helpers
+
+    private func closeAlerts() {
+        withAnimation(TidoDesign.Animation.quick) {
+            showingRenameAlert = false
+            showingNewWorkspaceAlert = false
+        }
+        NSApp.keyWindow?.makeFirstResponder(nil)
+    }
+
+    private func submitAlert() {
+        if showingRenameAlert {
+            store.renameWorkspace(from: workspaceToRename, to: workspaceNameInput)
+        } else if showingNewWorkspaceAlert {
+            if !workspaceNameInput.trimmed.isEmpty {
+                store.selectedWorkspace = workspaceNameInput.trimmed
+            }
+        }
+        closeAlerts()
     }
 }
