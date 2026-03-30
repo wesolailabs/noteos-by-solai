@@ -32,9 +32,9 @@ final class TaskStore: ObservableObject {
 
     // MARK: - Published UI State
 
-    @Published var searchText: String = ""
     @Published var activeFilter: TaskFilter = .pending
-    @Published var isPinned: Bool = false
+    @Published var selectedWorkspace: String? = nil
+    @Published var searchText: String = ""
 
     // MARK: - Context
 
@@ -57,7 +57,11 @@ final class TaskStore: ObservableObject {
         // Determine next sort order
         let nextOrder = (try? context.fetch(FetchDescriptor<TaskItem>()))?.count ?? 0
 
-        let task = TaskItem(title: trimmed, sortOrder: nextOrder)
+        let task = TaskItem(
+            title: trimmed,
+            sortOrder: nextOrder,
+            workspace: selectedWorkspace ?? "Personal"
+        )
         context.insert(task)
         save()
         return task
@@ -102,6 +106,45 @@ final class TaskStore: ObservableObject {
         save()
     }
 
+    // MARK: - Workspace Management
+
+    func renameWorkspace(from oldName: String, to newName: String) {
+        let trimmed = newName.trimmed
+        guard !trimmed.isBlank, trimmed != oldName else { return }
+
+        // Fetch ALL tasks globally to catch those hidden by filters (Done tasks)
+        let descriptor = FetchDescriptor<TaskItem>()
+        if let allTasks = try? context.fetch(descriptor) {
+            allTasks.filter { $0.workspace == oldName }.forEach {
+                $0.workspace = trimmed
+            }
+        }
+        
+        // Update current selection if it matches
+        if selectedWorkspace == oldName {
+            selectedWorkspace = trimmed
+        }
+        
+        save()
+    }
+
+    func deleteWorkspace(_ name: String) {
+        // Fetch ALL tasks globally to catch hidden ones
+        let descriptor = FetchDescriptor<TaskItem>()
+        if let allTasks = try? context.fetch(descriptor) {
+            allTasks.filter { $0.workspace == name }.forEach {
+                context.delete($0)
+            }
+        }
+        
+        // Reset selection if it was the deleted workspace
+        if selectedWorkspace == name {
+            selectedWorkspace = nil
+        }
+        
+        save()
+    }
+
     // MARK: - Subtask CRUD
 
     @discardableResult
@@ -136,20 +179,23 @@ final class TaskStore: ObservableObject {
         save()
     }
 
-    // MARK: - Filtering / Search
-
-    /// Applies the active filter and search query to a flat task array.
+    /// Applies the active filter and search text.
     func filtered(_ tasks: [TaskItem]) -> [TaskItem] {
         var result = tasks
 
-        // Filter
+        // Workspace Filter
+        if let workspace = selectedWorkspace {
+            result = result.filter { $0.workspace == workspace }
+        }
+
+        // Status Filter
         switch activeFilter {
         case .all:     break
         case .pending: result = result.filter { !$0.isCompleted }
         case .done:    result = result.filter { $0.isCompleted }
         }
 
-        // Search
+        // Search Filter
         let query = searchText.trimmed.lowercased()
         if !query.isEmpty {
             result = result.filter {
@@ -159,6 +205,12 @@ final class TaskStore: ObservableObject {
         }
 
         return result
+    }
+
+    /// Dynamic list of workspaces based on existing tasks
+    func getAvailableWorkspaces(_ tasks: [TaskItem]) -> [String] {
+        let unique = Set(tasks.map(\.workspace) + ["Personal", "Work", "Private"])
+        return unique.sorted()
     }
 
     // MARK: - Private

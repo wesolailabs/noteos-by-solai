@@ -12,11 +12,11 @@ enum TidoDesign {
     // MARK: Colors
 
     enum Color {
-        /// Accent: a warm, confident indigo-violet — modern but not aggressive
-        static let accent = SwiftUI.Color(hue: 0.69, saturation: 0.72, brightness: 0.90)
+        /// Accent: a vibrant blue - modern and native to macOS
+        static let accent = SwiftUI.Color(hue: 0.58, saturation: 0.70, brightness: 0.95)
 
         /// Accent secondary — subtle tint for backgrounds
-        static let accentSubtle = SwiftUI.Color(hue: 0.69, saturation: 0.18, brightness: 0.97)
+        static let accentSubtle = SwiftUI.Color(hue: 0.58, saturation: 0.12, brightness: 0.98)
 
         /// Completion green — muted, not electric
         static let success = SwiftUI.Color(hue: 0.37, saturation: 0.60, brightness: 0.72)
@@ -36,8 +36,8 @@ enum TidoDesign {
         /// Separator
         static let separator = SwiftUI.Color.primary.opacity(0.07)
 
-        /// Row hover background
-        static let rowHover = SwiftUI.Color.primary.opacity(0.04)
+        /// Row hover background - very subtle
+        static let rowHover = SwiftUI.Color.primary.opacity(0.05)
 
         /// Completed task text overlay
         static let textCompleted = SwiftUI.Color.secondary.opacity(0.50)
@@ -58,9 +58,9 @@ enum TidoDesign {
     // MARK: Radius
 
     enum Radius {
-        static let sm: CGFloat  = 6
-        static let md: CGFloat  = 10
-        static let lg: CGFloat  = 14
+        static let sm: CGFloat  = 8
+        static let md: CGFloat  = 12
+        static let lg: CGFloat  = 16
         static let xl: CGFloat  = 20
     }
 
@@ -68,25 +68,25 @@ enum TidoDesign {
 
     enum Font {
         /// App-level title
-        static let title      = SwiftUI.Font.system(size: 15, weight: .semibold, design: .rounded)
+        static let title      = SwiftUI.Font.system(size: 15, weight: .semibold)
         /// Section header
-        static let header     = SwiftUI.Font.system(size: 12, weight: .semibold, design: .rounded)
+        static let header     = SwiftUI.Font.system(size: 12, weight: .medium)
         /// Task title
-        static let taskTitle  = SwiftUI.Font.system(size: 13.5, weight: .regular, design: .default)
+        static let taskTitle  = SwiftUI.Font.system(size: 13.5, weight: .regular)
         /// Subtask title
-        static let subtask    = SwiftUI.Font.system(size: 12.5, weight: .regular, design: .default)
+        static let subtask    = SwiftUI.Font.system(size: 12.5, weight: .regular)
         /// Caption / metadata
-        static let caption    = SwiftUI.Font.system(size: 11, weight: .regular, design: .rounded)
+        static let caption    = SwiftUI.Font.system(size: 11, weight: .regular)
         /// Monospaced count badge
         static let badge      = SwiftUI.Font.system(size: 10.5, weight: .semibold, design: .monospaced)
         /// Input field
-        static let input      = SwiftUI.Font.system(size: 13.5, weight: .regular, design: .default)
+        static let input      = SwiftUI.Font.system(size: 13.5, weight: .regular)
     }
 
     // MARK: Animation
 
     enum Animation {
-        static let spring = SwiftUI.Animation.spring(response: 0.32, dampingFraction: 0.72)
+        static let spring = SwiftUI.Animation.spring(response: 0.3, dampingFraction: 0.7)
         static let quick  = SwiftUI.Animation.easeInOut(duration: 0.18)
         static let slow   = SwiftUI.Animation.easeInOut(duration: 0.30)
     }

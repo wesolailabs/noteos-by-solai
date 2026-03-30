@@ -8,12 +8,10 @@ import SwiftUI
 struct EmptyStateView: View {
 
     let filter: TaskFilter
-    let searchText: String
 
     // MARK: - Computed
 
     private var symbol: String {
-        if !searchText.isBlank { return "magnifyingglass" }
         switch filter {
         case .all:     return "checklist"
         case .pending: return "sparkles"
@@ -22,7 +20,6 @@ struct EmptyStateView: View {
     }
 
     private var title: String {
-        if !searchText.isBlank { return "No results" }
         switch filter {
         case .all:     return "All clear"
         case .pending: return "Nothing pending"
@@ -31,7 +28,6 @@ struct EmptyStateView: View {
     }
 
     private var subtitle: String {
-        if !searchText.isBlank { return "Try a different search term" }
         switch filter {
         case .all:     return "Add your first task below"
         case .pending: return "Everything's taken care of ✓"

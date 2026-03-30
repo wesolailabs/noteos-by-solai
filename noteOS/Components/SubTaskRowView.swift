@@ -59,21 +59,20 @@ struct SubTaskRowView: View {
             Spacer()
 
             // Delete button — shown on hover
-            if isHovered && !isEditing {
-                Button(action: onDelete) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(TidoDesign.Color.textTertiary)
-                }
-                .buttonStyle(.plain)
-                .transition(.opacity.combined(with: .scale(scale: 0.7)))
+            Button(action: onDelete) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(TidoDesign.Color.textTertiary)
             }
+            .buttonStyle(.plain)
+            .opacity((isHovered && !isEditing) ? 1.0 : 0.0)
+            .animation(TidoDesign.Animation.quick, value: isHovered)
         }
+        .contentShape(Rectangle())
         .padding(.horizontal, TidoDesign.Spacing.md)
         .frame(minHeight: TidoDesign.Size.subtaskMinHeight)
         .tidoRowBackground(isHovered: isHovered, cornerRadius: TidoDesign.Radius.sm)
         .onHover { isHovered = $0 }
-        .animation(TidoDesign.Animation.quick, value: isHovered)
     }
 
     // MARK: - Edit Helpers

@@ -18,12 +18,12 @@ struct FilterTabBar: View {
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: 1) {
             ForEach(TaskFilter.allCases) { filter in
                 filterButton(filter)
             }
         }
-        .padding(3)
+        .padding(2)
         .background(
             RoundedRectangle(cornerRadius: TidoDesign.Radius.md, style: .continuous)
                 .fill(.primary.opacity(0.06))
@@ -41,7 +41,7 @@ struct FilterTabBar: View {
                 selection = filter
             }
         } label: {
-            HStack(spacing: 4) {
+            HStack(spacing: 3) {
                 Image(systemName: filter.systemImage)
                     .font(.system(size: 10, weight: .semibold))
 
@@ -53,8 +53,8 @@ struct FilterTabBar: View {
                     Text("\(count)")
                         .font(TidoDesign.Font.badge)
                         .foregroundStyle(isSelected ? TidoDesign.Color.accent : TidoDesign.Color.textTertiary)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 1)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 0.5)
                         .background(
                             Capsule()
                                 .fill(isSelected
@@ -64,8 +64,8 @@ struct FilterTabBar: View {
                 }
             }
             .foregroundStyle(isSelected ? TidoDesign.Color.accent : TidoDesign.Color.textSecondary)
-            .padding(.horizontal, TidoDesign.Spacing.sm)
-            .padding(.vertical, 5)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             .background(
                 Group {
                     if isSelected {

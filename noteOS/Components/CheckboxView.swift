@@ -46,29 +46,36 @@ struct CheckboxView: View {
 
     var body: some View {
         ZStack {
-            // Background circle / ring
+            // Invisible larger hit area
             Circle()
-                .strokeBorder(
-                    isCompleted ? TidoDesign.Color.success : TidoDesign.Color.textTertiary.opacity(0.5),
-                    lineWidth: size.strokeWidth
-                )
-                .background(
-                    Circle()
-                        .fill(isCompleted ? TidoDesign.Color.success : Color.clear)
-                )
-                .frame(width: size.diameter, height: size.diameter)
-                .animation(TidoDesign.Animation.spring, value: isCompleted)
+                .fill(Color.white.opacity(0.001))
+                .frame(width: size.diameter + 8, height: size.diameter + 8)
 
-            // Checkmark
-            if isCompleted {
-                Image(systemName: "checkmark")
-                    .font(.system(size: size.diameter * size.checkmarkScale, weight: .bold))
-                    .foregroundStyle(.white)
-                    .transition(.scale(scale: 0.3).combined(with: .opacity))
+            // Visual Checkbox
+            ZStack {
+                // Background circle / ring
+                Circle()
+                    .strokeBorder(
+                        isCompleted ? TidoDesign.Color.success : TidoDesign.Color.textTertiary.opacity(0.5),
+                        lineWidth: size.strokeWidth
+                    )
+                    .background(
+                        Circle()
+                            .fill(isCompleted ? TidoDesign.Color.success : Color.clear)
+                    )
+                    .frame(width: size.diameter, height: size.diameter)
+                    .animation(TidoDesign.Animation.spring, value: isCompleted)
+
+                // Checkmark
+                if isCompleted {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: size.diameter * size.checkmarkScale, weight: .bold))
+                        .foregroundStyle(.white)
+                        .transition(.scale(scale: 0.3).combined(with: .opacity))
+                }
             }
         }
-        .scaleEffect(isPressed ? 0.85 : 1.0)
-        .animation(TidoDesign.Animation.spring, value: isPressed)
+        .contentShape(Circle())
         .onTapGesture {
             // Press animation
             withAnimation(TidoDesign.Animation.spring) { isPressed = true }
@@ -77,6 +84,10 @@ struct CheckboxView: View {
             }
             onToggle()
         }
+        .scaleEffect(isPressed ? 0.85 : (isCompleted ? 1.05 : 1.0))
+        .rotationEffect(.degrees(isCompleted ? 0 : -8))
+        .animation(TidoDesign.Animation.spring, value: isCompleted)
+        .animation(TidoDesign.Animation.spring, value: isPressed)
         .accessibilityLabel(isCompleted ? "Mark as incomplete" : "Mark as complete")
         .accessibilityAddTraits(.isButton)
     }

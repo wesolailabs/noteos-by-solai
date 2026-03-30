@@ -30,6 +30,9 @@ final class TaskItem {
     /// Sort index for drag-and-drop reordering
     var sortOrder: Int
 
+    /// Workspace category (Folder equivalent)
+    var workspace: String
+
     /// Relationship: subtasks owned by this task
     @Relationship(deleteRule: .cascade, inverse: \SubTaskItem.task)
     var subtasks: [SubTaskItem]
@@ -42,7 +45,8 @@ final class TaskItem {
         isCompleted: Bool = false,
         createdAt: Date = .now,
         notes: String = "",
-        sortOrder: Int = 0
+        sortOrder: Int = 0,
+        workspace: String = "Personal"
     ) {
         self.id = id
         self.title = title
@@ -50,6 +54,7 @@ final class TaskItem {
         self.createdAt = createdAt
         self.notes = notes
         self.sortOrder = sortOrder
+        self.workspace = workspace
         self.subtasks = []
     }
 

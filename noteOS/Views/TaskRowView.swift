@@ -61,6 +61,7 @@ struct TaskRowView: View {
                             }
                         )
                         .padding(.vertical, TidoDesign.Spacing.xs)
+                        .padding(.horizontal, TidoDesign.Spacing.md)
                     }
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
@@ -121,31 +122,30 @@ struct TaskRowView: View {
                 .buttonStyle(.plain)
             }
 
-            if isHovered && !isEditing {
-                HStack(spacing: 8) {
-                    Button {
-                        withAnimation {
-                            isExpanded = true
-                            showSubtaskInput.toggle()
-                        }
-                    } label: {
-                        Image(systemName: "plus.circle")
+            HStack(spacing: 8) {
+                Button {
+                    withAnimation {
+                        isExpanded = true
+                        showSubtaskInput.toggle()
                     }
-
-                    Button(action: { store.deleteTask(task) }) {
-                        Image(systemName: "trash")
-                            .foregroundStyle(TidoDesign.Color.destructive.opacity(0.8))
-                    }
+                } label: {
+                    Image(systemName: "plus.circle")
                 }
-                .frame(width: 50, alignment: .trailing)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(TidoDesign.Color.textSecondary)
-                .buttonStyle(.plain)
-                .transition(.opacity.combined(with: .move(edge: .trailing)))
-            } else {
-                Color.clear.frame(width: 50)
+
+                Button(action: { store.deleteTask(task) }) {
+                    Image(systemName: "trash")
+                        .foregroundStyle(TidoDesign.Color.destructive.opacity(0.8))
+                }
             }
+            .frame(width: 50, alignment: .trailing)
+            .font(.system(size: 11, weight: .medium))
+            .foregroundStyle(TidoDesign.Color.textSecondary)
+            .buttonStyle(.plain)
+            .opacity((isHovered && !isEditing) ? 1.0 : 0.0)
+            .animation(TidoDesign.Animation.quick, value: isHovered)
+            .animation(TidoDesign.Animation.quick, value: isEditing)
         }
+        .contentShape(Rectangle())
     }
 
     private func startEdit() {
