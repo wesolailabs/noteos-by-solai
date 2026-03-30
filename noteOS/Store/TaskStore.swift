@@ -14,7 +14,7 @@ enum TaskFilter: String, CaseIterable, Identifiable {
     case pending   = "Pending"
     case done      = "Done"
 
-    var id: String { rawValue }
+    var id: Self { self }
 
     var systemImage: String {
         switch self {
@@ -55,7 +55,10 @@ final class TaskStore: ObservableObject {
         guard !trimmed.isBlank else { return nil }
 
         // Determine next sort order
-        let nextOrder = (try? context.fetch(FetchDescriptor<TaskItem>()))?.count ?? 0
+        var descriptor = FetchDescriptor<TaskItem>(sortBy: [SortDescriptor(\.sortOrder, order: .reverse)])
+        descriptor.fetchLimit = 1
+        let maxOrder = (try? context.fetch(descriptor))?.first?.sortOrder ?? -1
+        let nextOrder = maxOrder + 1
 
         let task = TaskItem(
             title: trimmed,
@@ -107,6 +110,29 @@ final class TaskStore: ObservableObject {
     }
 
     // MARK: - Workspace Management
+    
+    private let customWorkspacesKey = "tido_custom_workspaces"
+    
+    private var savedWorkspaces: Set<String> {
+        get {
+            let array = UserDefaults.standard.stringArray(forKey: customWorkspacesKey) ?? []
+            return Set(array)
+        }
+        set {
+            UserDefaults.standard.set(Array(newValue), forKey: customWorkspacesKey)
+        }
+    }
+    
+    func createWorkspace(_ name: String) {
+        let trimmed = name.trimmed
+        guard !trimmed.isBlank else { return }
+        
+        var ws = savedWorkspaces
+        ws.insert(trimmed)
+        savedWorkspaces = ws
+        
+        selectedWorkspace = trimmed
+    }
 
     func renameWorkspace(from oldName: String, to newName: String) {
         let trimmed = newName.trimmed
@@ -122,6 +148,14 @@ final class TaskStore: ObservableObject {
                 $0.workspace = trimmed
             }
         }
+        
+        // Update UserDefaults
+        var ws = savedWorkspaces
+        if ws.contains(oldName) {
+            ws.remove(oldName)
+        }
+        ws.insert(trimmed)
+        savedWorkspaces = ws
         
         // Update current selection if it matches
         if selectedWorkspace == oldName {
@@ -142,6 +176,11 @@ final class TaskStore: ObservableObject {
                 context.delete($0)
             }
         }
+        
+        // Update UserDefaults
+        var ws = savedWorkspaces
+        ws.remove(name)
+        savedWorkspaces = ws
         
         // Reset selection if it was the deleted workspace
         if selectedWorkspace == name {
@@ -213,14 +252,15 @@ final class TaskStore: ObservableObject {
         return result
     }
 
-    /// Dynamic list of workspaces based on existing tasks
+    /// Dynamic list of workspaces based on existing tasks and saved custom empty ones
     func getAvailableWorkspaces(_ tasks: [TaskItem]) -> [String] {
         var baseWorkspaces = Set(["Personal"])
         if let selected = selectedWorkspace {
             baseWorkspaces.insert(selected)
         }
+        baseWorkspaces.formUnion(savedWorkspaces)
         let unique = Set(tasks.map(\.workspace)).union(baseWorkspaces)
-        return unique.sorted()
+        return Array(unique).sorted()
     }
 
     // MARK: - Private

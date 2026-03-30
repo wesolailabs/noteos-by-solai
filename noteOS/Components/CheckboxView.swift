@@ -85,8 +85,11 @@ struct CheckboxView: View {
         .onTapGesture {
             // Press animation
             withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) { isPressed = true }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) { isPressed = false }
+            Task {
+                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                await MainActor.run {
+                    withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) { isPressed = false }
+                }
             }
             onToggle()
         }

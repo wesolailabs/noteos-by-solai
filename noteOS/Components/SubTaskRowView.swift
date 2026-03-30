@@ -43,7 +43,6 @@ struct SubTaskRowView: View {
                     .focused($isTextFieldFocused)
                     .onSubmit { commitEdit() }
                     .onKeyPress(.escape) { cancelEdit(); return .handled }
-                    .onAppear { editText = subtask.title }
             } else {
                 Text(subtask.title)
                     .font(TidoDesign.Font.subtask)

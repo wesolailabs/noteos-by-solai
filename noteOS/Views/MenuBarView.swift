@@ -22,8 +22,12 @@ struct MenuBarView: View {
         // ultraThin gives that high-end glassy translucency
         .background(Material.ultraThin)
         // Window styling hack using introspect
-        .onAppear {
-            setupWindow()
+        .task {
+            // Wait a tick for the window to be available before setting it up
+            try? await Task.sleep(for: .milliseconds(50))
+            await MainActor.run {
+                setupWindow()
+            }
         }
     }
 

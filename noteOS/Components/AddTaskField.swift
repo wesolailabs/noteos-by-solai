@@ -18,6 +18,7 @@ struct AddTaskField: View {
 
     @State private var text: String = ""
     @FocusState private var isFocused: Bool
+    @State private var didSubmit: Bool = false
 
     // MARK: - Body
 
@@ -71,9 +72,10 @@ struct AddTaskField: View {
         .animation(TidoDesign.Animation.quick, value: text)
         .animation(TidoDesign.Animation.quick, value: isFocused)
         .onChange(of: isFocused) { _, focused in
-            if !focused {
+            if !focused && !didSubmit {
                 cancel()
             }
+            didSubmit = false
         }
         .onAppear {
             // Slight delay so the view is fully laid out before focusing
@@ -87,11 +89,12 @@ struct AddTaskField: View {
 
     private func submit() {
         let submitted = text.trimmed
-        text = ""
         guard !submitted.isBlank else {
             cancel()
             return
         }
+        didSubmit = true
+        text = ""
         onSubmit(submitted)
     }
 

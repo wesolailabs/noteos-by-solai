@@ -51,6 +51,7 @@ extension Color {
         let a, r, g, b: UInt64
         switch hex.count {
         case 3:
+            // 12-bit RGB (e.g. #F00). Assumes fully opaque alpha (255)
             (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
         case 6:
             (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)

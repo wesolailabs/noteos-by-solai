@@ -89,8 +89,8 @@ struct TaskListView: View {
 
                         Divider()
 
-                        // Limit to max 5 workspaces total
-                        if store.getAvailableWorkspaces(allTasks).count < 5 {
+                        // Limit to max 10 workspaces total to prevent the dropdown from overflowing the screen
+                        if store.getAvailableWorkspaces(allTasks).count < 10 {
                             Button {
                                 withAnimation(TidoDesign.Animation.quick) {
                                     workspaceNameInput = ""
@@ -101,22 +101,22 @@ struct TaskListView: View {
                             }
                         }
                     } label: {
-                        HStack(spacing: 4) {
+                        VStack(spacing: 2) {
                             Image(systemName: store.selectedWorkspace == nil ? "folder" : "folder.fill")
-                                .imageScale(.medium)
-                            if let selected = store.selectedWorkspace {
-                                Text(selected)
-                                    .font(TidoDesign.Font.caption.weight(.medium))
-                                    .lineLimit(1)
-                            }
+                                .font(.system(size: 13, weight: .medium))
+                            Text(store.selectedWorkspace ?? "All")
+                                .font(.system(size: 9, weight: .semibold))
+                                .lineLimit(1)
+                                .truncationMode(.tail)
                         }
                         .foregroundStyle(store.selectedWorkspace == nil ? TidoDesign.Color.textSecondary : TidoDesign.Color.accent)
                         .padding(.horizontal, 8)
-                        .padding(.vertical, 6)
+                        .padding(.vertical, 4)
                         .background(
                             (store.selectedWorkspace == nil ? Color.clear : TidoDesign.Color.accent.opacity(0.1))
                                 .continuousRoundedCorners(TidoDesign.Radius.sm)
                         )
+                        .frame(width: 55) // Fixed width so it doesn't shift the header layout when names change
                     }
                     .buttonStyle(.plain)
                     .menuIndicator(.hidden)
@@ -124,10 +124,11 @@ struct TaskListView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                     // Filter Tabs (Center Section)
+                    let pending = allTasks.filter { !$0.isCompleted }.count
                     FilterTabBar(
                         selection: $store.activeFilter,
-                        pendingCount: allTasks.filter { !$0.isCompleted }.count,
-                        doneCount: allTasks.filter { $0.isCompleted }.count
+                        pendingCount: pending,
+                        doneCount: allTasks.count - pending
                     )
                     .layoutPriority(1)
 
@@ -367,7 +368,7 @@ struct TaskListView: View {
             store.renameWorkspace(from: workspaceToRename, to: workspaceNameInput)
         } else if showingNewWorkspaceAlert {
             if !workspaceNameInput.trimmed.isEmpty {
-                store.selectedWorkspace = workspaceNameInput.trimmed
+                store.createWorkspace(workspaceNameInput)
             }
         }
         closeAlerts()

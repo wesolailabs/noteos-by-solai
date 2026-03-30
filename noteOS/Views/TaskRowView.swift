@@ -56,6 +56,7 @@ struct TaskRowView: View {
                             isSubtask: true,
                             onSubmit: { title in
                                 store.addSubtask(to: task, title: title)
+                                withAnimation(.spring) { showSubtaskInput = false }
                             },
                             onCancel: {
                                 withAnimation { showSubtaskInput = false }
@@ -86,7 +87,6 @@ struct TaskRowView: View {
                     .focused($isTextFieldFocused)
                     .onSubmit { commitEdit() }
                     .onKeyPress(.escape) { cancelEdit(); return .handled }
-                    .onAppear { editText = task.title }
             } else {
                 Text(task.title)
                     .font(TidoDesign.Font.taskTitle)

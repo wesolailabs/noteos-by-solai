@@ -66,12 +66,13 @@ struct FilterTabBar: View {
             .foregroundStyle(isSelected ? TidoDesign.Color.accent : TidoDesign.Color.textSecondary)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
+            .matchedGeometryEffect(id: filter.id, in: tabNamespace, isSource: true)
             .background(
                 Group {
                     if isSelected {
                         RoundedRectangle(cornerRadius: TidoDesign.Radius.sm, style: .continuous)
                             .fill(.background)
-                            .matchedGeometryEffect(id: "tab_pill", in: tabNamespace)
+                            .matchedGeometryEffect(id: "tab_pill", in: tabNamespace, isSource: false)
                             .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 1)
                     }
                 }
