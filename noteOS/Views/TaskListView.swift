@@ -154,7 +154,7 @@ struct TaskListView: View {
             .padding(.horizontal, TidoDesign.Spacing.md)
             .padding(.vertical, TidoDesign.Spacing.sm)
 
-            Divider().opacity(0.5)
+            Color.clear.frame(height: 1)
 
             // Task List Content
             let filteredTasks = store.filtered(allTasks)
@@ -207,7 +207,7 @@ struct TaskListView: View {
             .animation(TidoDesign.Animation.spring, value: store.activeFilter)
             .frame(maxWidth: .infinity, maxHeight: TidoDesign.Size.popoverMaxHeight)
 
-            Divider().opacity(0.5)
+            Color.clear.frame(height: 1)
 
             // Bottom Add Action
             VStack {
