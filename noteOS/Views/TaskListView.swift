@@ -58,22 +58,24 @@ struct TaskListView: View {
                                     Label("Select", systemImage: "checkmark")
                                 }
                                 
-                                Divider()
-                                
-                                Button {
-                                    withAnimation(TidoDesign.Animation.quick) {
-                                        workspaceToRename = ws
-                                        workspaceNameInput = ws
-                                        showingRenameAlert = true
+                                if ws != "Personal" {
+                                    Divider()
+                                    
+                                    Button {
+                                        withAnimation(TidoDesign.Animation.quick) {
+                                            workspaceToRename = ws
+                                            workspaceNameInput = ws
+                                            showingRenameAlert = true
+                                        }
+                                    } label: {
+                                        Label("Rename...", systemImage: "pencil")
                                     }
-                                } label: {
-                                    Label("Rename...", systemImage: "pencil")
-                                }
-                                
-                                Button(role: .destructive) {
-                                    store.deleteWorkspace(ws)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
+                                    
+                                    Button(role: .destructive) {
+                                        store.deleteWorkspace(ws)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
                                 }
                             } label: {
                                 HStack {

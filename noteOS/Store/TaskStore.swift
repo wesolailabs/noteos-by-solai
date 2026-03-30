@@ -111,6 +111,9 @@ final class TaskStore: ObservableObject {
     func renameWorkspace(from oldName: String, to newName: String) {
         let trimmed = newName.trimmed
         guard !trimmed.isBlank, trimmed != oldName else { return }
+        
+        // Prevent renaming the default "Personal" workspace
+        guard oldName != "Personal" else { return }
 
         // Fetch ALL tasks globally to catch those hidden by filters (Done tasks)
         let descriptor = FetchDescriptor<TaskItem>()
@@ -129,6 +132,9 @@ final class TaskStore: ObservableObject {
     }
 
     func deleteWorkspace(_ name: String) {
+        // Prevent deleting the default "Personal" workspace
+        guard name != "Personal" else { return }
+        
         // Fetch ALL tasks globally to catch hidden ones
         let descriptor = FetchDescriptor<TaskItem>()
         if let allTasks = try? context.fetch(descriptor) {
@@ -209,7 +215,7 @@ final class TaskStore: ObservableObject {
 
     /// Dynamic list of workspaces based on existing tasks
     func getAvailableWorkspaces(_ tasks: [TaskItem]) -> [String] {
-        var baseWorkspaces = Set(["Personal", "Work", "Private"])
+        var baseWorkspaces = Set(["Personal"])
         if let selected = selectedWorkspace {
             baseWorkspaces.insert(selected)
         }
