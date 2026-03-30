@@ -18,6 +18,7 @@ struct SubTaskRowView: View {
     @State private var isHovered: Bool = false
     @State private var isEditing: Bool = false
     @State private var editText: String = ""
+    @FocusState private var isTextFieldFocused: Bool
 
     // MARK: - Body
 
@@ -39,6 +40,7 @@ struct SubTaskRowView: View {
                 TextField("Subtask…", text: $editText)
                     .font(TidoDesign.Font.subtask)
                     .textFieldStyle(.plain)
+                    .focused($isTextFieldFocused)
                     .onSubmit { commitEdit() }
                     .onKeyPress(.escape) { cancelEdit(); return .handled }
                     .onAppear { editText = subtask.title }
@@ -53,7 +55,6 @@ struct SubTaskRowView: View {
                     .strikethrough(subtask.isCompleted, color: TidoDesign.Color.textCompleted)
                     .lineLimit(2)
                     .animation(TidoDesign.Animation.quick, value: subtask.isCompleted)
-                    .onTapGesture(count: 2) { startEdit() }
             }
 
             Spacer()
@@ -69,6 +70,9 @@ struct SubTaskRowView: View {
             .animation(TidoDesign.Animation.quick, value: isHovered)
         }
         .contentShape(Rectangle())
+        .onTapGesture(count: 2) {
+            if !isEditing { startEdit() }
+        }
         .padding(.horizontal, TidoDesign.Spacing.md)
         .frame(minHeight: TidoDesign.Size.subtaskMinHeight)
         .tidoRowBackground(isHovered: isHovered, cornerRadius: TidoDesign.Radius.sm)
@@ -80,6 +84,7 @@ struct SubTaskRowView: View {
     private func startEdit() {
         editText = subtask.title
         isEditing = true
+        isTextFieldFocused = true
     }
 
     private func commitEdit() {

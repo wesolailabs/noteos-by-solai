@@ -141,6 +141,7 @@ struct TaskListView: View {
                     } label: {
                         Image(systemName: "gearshape")
                             .foregroundStyle(TidoDesign.Color.textSecondary)
+                            .padding(.trailing, 2)
                     }
                     .menuStyle(.borderlessButton)
                     .menuIndicator(.hidden)

@@ -14,6 +14,7 @@ struct TaskRowView: View {
     @State private var showSubtaskInput: Bool = false
     @State private var isEditing: Bool = false
     @State private var editText: String = ""
+    @FocusState private var isTextFieldFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -82,7 +83,9 @@ struct TaskRowView: View {
                 TextField("Task…", text: $editText)
                     .font(TidoDesign.Font.taskTitle)
                     .textFieldStyle(.plain)
+                    .focused($isTextFieldFocused)
                     .onSubmit { commitEdit() }
+                    .onKeyPress(.escape) { cancelEdit(); return .handled }
                     .onAppear { editText = task.title }
             } else {
                 Text(task.title)
@@ -95,7 +98,6 @@ struct TaskRowView: View {
                     .strikethrough(task.isCompleted, color: TidoDesign.Color.textCompleted)
                     .lineLimit(2)
                     .animation(TidoDesign.Animation.quick, value: task.isCompleted)
-                    .onTapGesture(count: 2) { startEdit() }
             }
 
             Spacer()
@@ -146,11 +148,15 @@ struct TaskRowView: View {
             .animation(TidoDesign.Animation.quick, value: isEditing)
         }
         .contentShape(Rectangle())
+        .onTapGesture(count: 2) {
+            if !isEditing { startEdit() }
+        }
     }
 
     private func startEdit() {
         editText = task.title
         isEditing = true
+        isTextFieldFocused = true
     }
 
     private func commitEdit() {
@@ -158,6 +164,10 @@ struct TaskRowView: View {
         if !trimmed.isEmpty {
             store.updateTask(task, title: trimmed)
         }
+        isEditing = false
+    }
+
+    private func cancelEdit() {
         isEditing = false
     }
 }

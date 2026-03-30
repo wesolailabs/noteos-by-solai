@@ -209,7 +209,11 @@ final class TaskStore: ObservableObject {
 
     /// Dynamic list of workspaces based on existing tasks
     func getAvailableWorkspaces(_ tasks: [TaskItem]) -> [String] {
-        let unique = Set(tasks.map(\.workspace) + ["Personal", "Work", "Private"])
+        var baseWorkspaces = Set(["Personal", "Work", "Private"])
+        if let selected = selectedWorkspace {
+            baseWorkspaces.insert(selected)
+        }
+        let unique = Set(tasks.map(\.workspace)).union(baseWorkspaces)
         return unique.sorted()
     }
 
