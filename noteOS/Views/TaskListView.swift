@@ -15,8 +15,6 @@ struct TaskListView: View {
 
     // MARK: - Local State
 
-    // MARK: - Local State
-
     @State private var showingAddInput: Bool = false
     @State private var showingSearchInput: Bool = false
     @State private var showingRenameAlert: Bool = false
@@ -35,263 +33,258 @@ struct TaskListView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-
-            // Header Toolbar
-            HStack(spacing: 0) {
-                // Workspace Selector (Left Section)
-                Menu {
-                    Button {
-                        store.selectedWorkspace = nil
-                    } label: {
-                        HStack {
-                            Text("All Workspaces")
-                            if store.selectedWorkspace == nil {
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
-
-                    Divider()
-
-                    ForEach(store.getAvailableWorkspaces(allTasks), id: \.self) { ws in
-                        Menu {
-                            Button {
-                                store.selectedWorkspace = ws
-                            } label: {
-                                Label("Select", systemImage: "checkmark")
-                            }
-                            
-                            Divider()
-                            
-                            Button {
-                                withAnimation(TidoDesign.Animation.quick) {
-                                    workspaceToRename = ws
-                                    workspaceNameInput = ws
-                                    showingRenameAlert = true
-                                }
-                            } label: {
-                                Label("Rename...", systemImage: "pencil")
-                            }
-                            
-                            Button(role: .destructive) {
-                                store.deleteWorkspace(ws)
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
+                // Header Toolbar
+                HStack(spacing: 0) {
+                    // Workspace Selector (Left Section)
+                    Menu {
+                        Button {
+                            store.selectedWorkspace = nil
                         } label: {
                             HStack {
-                                Text(ws)
-                                if store.selectedWorkspace == ws {
+                                Text("All Workspaces")
+                                if store.selectedWorkspace == nil {
                                     Image(systemName: "checkmark")
                                 }
                             }
                         }
-                    }
 
-                    Divider()
+                        Divider()
 
-                    // Limit to max 5 workspaces total
-                    if store.getAvailableWorkspaces(allTasks).count < 5 {
-                        Button {
-                            withAnimation(TidoDesign.Animation.quick) {
-                                workspaceNameInput = ""
-                                showingNewWorkspaceAlert = true
-                            }
-                        } label: {
-                            Label("New Workspace...", systemImage: "plus.rectangle.on.folder")
-                        }
-                    }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: store.selectedWorkspace == nil ? "folder" : "folder.fill")
-                            .imageScale(.medium)
-                        if let selected = store.selectedWorkspace {
-                            Text(selected)
-                                .font(TidoDesign.Font.caption.weight(.medium))
-                                .lineLimit(1)
-                        }
-                    }
-                    .foregroundStyle(store.selectedWorkspace == nil ? TidoDesign.Color.textSecondary : TidoDesign.Color.accent)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 6)
-                    .background(
-                        (store.selectedWorkspace == nil ? Color.clear : TidoDesign.Color.accent.opacity(0.1))
-                            .continuousRoundedCorners(TidoDesign.Radius.sm)
-                    )
-                }
-                .buttonStyle(.plain)
-                .menuIndicator(.hidden)
-                .help("Switch Workspace")
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                // Filter Tabs (Center Section)
-                FilterTabBar(
-                    selection: $store.activeFilter,
-                    pendingCount: allTasks.filter { !$0.isCompleted }.count,
-                    doneCount: allTasks.filter { $0.isCompleted }.count
-                )
-                .layoutPriority(1)
-
-                // Settings Menu (Right Section)
-                Menu {
-                    Button(LaunchAtLoginService.shared.isEnabled ? "Disable Launch at Login" : "Launch at Login") {
-                        LaunchAtLoginService.shared.toggle()
-                    }
-                    Divider()
-                    Button("Quit Tido", role: .destructive) {
-                        NSApplication.shared.terminate(nil)
-                    }
-                } label: {
-                    Image(systemName: "gearshape")
-                        .foregroundStyle(TidoDesign.Color.textSecondary)
-                }
-                .menuStyle(.borderlessButton)
-                .menuIndicator(.hidden)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-            }
-            .padding(.horizontal, TidoDesign.Spacing.md)
-            .padding(.vertical, TidoDesign.Spacing.sm)
-
-            Color.clear.frame(height: 1)
-
-            // Task List Content
-            let filteredTasks = store.filtered(allTasks)
-
-            VStack(spacing: 0) {
-                if filteredTasks.isEmpty {
-                    VStack {
-                        Spacer()
-                        EmptyStateView(filter: store.activeFilter)
-                            .transition(.opacity.combined(with: .scale(scale: 0.98)))
-                        Spacer()
-                    }
-                } else {
-                    ScrollView(.vertical, showsIndicators: false) {
-                        LazyVStack(spacing: TidoDesign.Spacing.xxs, pinnedViews: [.sectionHeaders]) {
-                            if store.selectedWorkspace == nil {
-                                // Grouped View
-                                let grouped = Dictionary(grouping: filteredTasks, by: { $0.workspace })
-                                let keys = grouped.keys.sorted()
-
-                                ForEach(keys, id: \.self) { wsName in
-                                    Section {
-                                        ForEach(grouped[wsName] ?? []) { task in
-                                            TaskRowView(task: task, store: store)
-                                        }
-                                    } header: {
-                                        HStack {
-                                            Text(wsName.uppercased())
-                                                .font(TidoDesign.Font.badge)
-                                                .foregroundStyle(TidoDesign.Color.textSecondary)
-                                                .padding(.horizontal, TidoDesign.Spacing.md)
-                                                .padding(.vertical, 4)
-                                            Spacer()
-                                        }
-                                        .background(Material.ultraThin.opacity(0.8))
+                        ForEach(store.getAvailableWorkspaces(allTasks), id: \.self) { ws in
+                            Menu {
+                                Button {
+                                    store.selectedWorkspace = ws
+                                } label: {
+                                    Label("Select", systemImage: "checkmark")
+                                }
+                                
+                                Divider()
+                                
+                                Button {
+                                    withAnimation(TidoDesign.Animation.quick) {
+                                        workspaceToRename = ws
+                                        workspaceNameInput = ws
+                                        showingRenameAlert = true
+                                    }
+                                } label: {
+                                    Label("Rename...", systemImage: "pencil")
+                                }
+                                
+                                Button(role: .destructive) {
+                                    store.deleteWorkspace(ws)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            } label: {
+                                HStack {
+                                    Text(ws)
+                                    if store.selectedWorkspace == ws {
+                                        Image(systemName: "checkmark")
                                     }
                                 }
-                            } else {
-                                // Single List View
-                                ForEach(filteredTasks) { task in
-                                    TaskRowView(task: task, store: store)
+                            }
+                        }
+
+                        Divider()
+
+                        // Limit to max 5 workspaces total
+                        if store.getAvailableWorkspaces(allTasks).count < 5 {
+                            Button {
+                                withAnimation(TidoDesign.Animation.quick) {
+                                    workspaceNameInput = ""
+                                    showingNewWorkspaceAlert = true
+                                }
+                            } label: {
+                                Label("New Workspace...", systemImage: "plus.rectangle.on.folder")
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: store.selectedWorkspace == nil ? "folder" : "folder.fill")
+                                .imageScale(.medium)
+                            if let selected = store.selectedWorkspace {
+                                Text(selected)
+                                    .font(TidoDesign.Font.caption.weight(.medium))
+                                    .lineLimit(1)
+                            }
+                        }
+                        .foregroundStyle(store.selectedWorkspace == nil ? TidoDesign.Color.textSecondary : TidoDesign.Color.accent)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 6)
+                        .background(
+                            (store.selectedWorkspace == nil ? Color.clear : TidoDesign.Color.accent.opacity(0.1))
+                                .continuousRoundedCorners(TidoDesign.Radius.sm)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .menuIndicator(.hidden)
+                    .help("Switch Workspace")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    // Filter Tabs (Center Section)
+                    FilterTabBar(
+                        selection: $store.activeFilter,
+                        pendingCount: allTasks.filter { !$0.isCompleted }.count,
+                        doneCount: allTasks.filter { $0.isCompleted }.count
+                    )
+                    .layoutPriority(1)
+
+                    // Settings Menu (Right Section)
+                    Menu {
+                        Button(LaunchAtLoginService.shared.isEnabled ? "Disable Launch at Login" : "Launch at Login") {
+                            LaunchAtLoginService.shared.toggle()
+                        }
+                        Divider()
+                        Button("Quit Tido", role: .destructive) {
+                            NSApplication.shared.terminate(nil)
+                        }
+                    } label: {
+                        Image(systemName: "gearshape")
+                            .foregroundStyle(TidoDesign.Color.textSecondary)
+                    }
+                    .menuStyle(.borderlessButton)
+                    .menuIndicator(.hidden)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+                .padding(.horizontal, TidoDesign.Spacing.md)
+                .padding(.vertical, TidoDesign.Spacing.sm)
+
+                Color.clear.frame(height: 1)
+
+                // Task List Content
+                let filteredTasks = store.filtered(allTasks)
+
+                VStack(spacing: 0) {
+                    if filteredTasks.isEmpty {
+                        VStack {
+                            Spacer()
+                            EmptyStateView(filter: store.activeFilter)
+                                .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                            Spacer()
+                        }
+                    } else {
+                        ScrollView(.vertical, showsIndicators: false) {
+                            LazyVStack(spacing: TidoDesign.Spacing.xxs, pinnedViews: [.sectionHeaders]) {
+                                if store.selectedWorkspace == nil {
+                                    // Grouped View
+                                    let grouped = Dictionary(grouping: filteredTasks, by: { $0.workspace })
+                                    let keys = grouped.keys.sorted()
+
+                                    ForEach(keys, id: \.self) { wsName in
+                                        Section {
+                                            ForEach(grouped[wsName] ?? []) { task in
+                                                TaskRowView(task: task, store: store)
+                                            }
+                                        } header: {
+                                            HStack {
+                                                Text(wsName.uppercased())
+                                                    .font(TidoDesign.Font.badge)
+                                                    .foregroundStyle(TidoDesign.Color.textSecondary)
+                                                    .padding(.horizontal, TidoDesign.Spacing.md)
+                                                    .padding(.vertical, 4)
+                                                Spacer()
+                                            }
+                                            .background(Material.ultraThin.opacity(0.8))
+                                        }
+                                    }
+                                } else {
+                                    // Single List View
+                                    ForEach(filteredTasks) { task in
+                                        TaskRowView(task: task, store: store)
+                                    }
                                 }
                             }
+                            .padding(.vertical, TidoDesign.Spacing.sm)
                         }
-                        .padding(.vertical, TidoDesign.Spacing.sm)
+                        .transition(.opacity)
                     }
-                    .transition(.opacity)
                 }
-            }
-            .animation(TidoDesign.Animation.spring, value: store.activeFilter)
-            .frame(maxWidth: .infinity, maxHeight: TidoDesign.Size.popoverMaxHeight)
+                .animation(TidoDesign.Animation.spring, value: store.activeFilter)
+                .frame(maxWidth: .infinity, maxHeight: TidoDesign.Size.popoverMaxHeight)
 
-            Color.clear.frame(height: 1)
+                Color.clear.frame(height: 1)
 
-            // Bottom Add Action
-            VStack {
-                if showingAddInput {
-                    AddTaskField(
-                        placeholder: "New task…",
-                        onSubmit: { title in
-                            store.addTask(title: title)
-                        },
-                        onCancel: {
-                            withAnimation(TidoDesign.Animation.spring) {
-                                showingAddInput = false
+                // Bottom Add Action
+                VStack {
+                    if showingAddInput {
+                        AddTaskField(
+                            placeholder: "New task…",
+                            onSubmit: { title in
+                                store.addTask(title: title)
+                            },
+                            onCancel: {
+                                withAnimation(TidoDesign.Animation.spring) {
+                                    showingAddInput = false
+                                }
                             }
-                        }
-                    )
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                } else if showingSearchInput {
-                    SearchTaskField(
-                        text: $store.searchText,
-                        onCancel: {
-                            withAnimation(TidoDesign.Animation.spring) {
-                                showingSearchInput = false
+                        )
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    } else if showingSearchInput {
+                        SearchTaskField(
+                            text: $store.searchText,
+                            onCancel: {
+                                withAnimation(TidoDesign.Animation.spring) {
+                                    showingSearchInput = false
+                                }
                             }
-                        }
-                    )
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                } else {
-                    HStack {
-                        Button {
-                            withAnimation(TidoDesign.Animation.spring) {
-                                showingAddInput = true
-                            }
-                        } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 11, weight: .semibold))
-                                Text("New Task")
-                                    .font(TidoDesign.Font.taskTitle.weight(.medium))
-                                Text("⌘N")
-                                    .font(TidoDesign.Font.caption)
-                                    .foregroundStyle(TidoDesign.Color.textTertiary)
-                                    .padding(.leading, 2)
-                                Spacer()
-                            }
-                            .foregroundStyle(TidoDesign.Color.textSecondary)
-                            .padding(.vertical, TidoDesign.Spacing.sm * 0.8)
-                            .padding(.horizontal, TidoDesign.Spacing.sm)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .keyboardShortcut("n", modifiers: .command)
-
-                        Button {
-                            withAnimation(TidoDesign.Animation.spring) {
-                                showingSearchInput = true
-                            }
-                        } label: {
-                            Image(systemName: "magnifyingglass")
-                                .font(.system(size: 14, weight: .medium))
+                        )
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    } else {
+                        HStack {
+                            Button {
+                                withAnimation(TidoDesign.Animation.spring) {
+                                    showingAddInput = true
+                                }
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 11, weight: .semibold))
+                                    Text("New Task")
+                                        .font(TidoDesign.Font.taskTitle.weight(.medium))
+                                    Text("⌘N")
+                                        .font(TidoDesign.Font.caption)
+                                        .foregroundStyle(TidoDesign.Color.textTertiary)
+                                        .padding(.leading, 2)
+                                    Spacer()
+                                }
                                 .foregroundStyle(TidoDesign.Color.textSecondary)
+                                .padding(.vertical, TidoDesign.Spacing.sm * 0.8)
                                 .padding(.horizontal, TidoDesign.Spacing.sm)
-                                .padding(.vertical, 8)
                                 .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .keyboardShortcut("n", modifiers: .command)
+
+                            Button {
+                                withAnimation(TidoDesign.Animation.spring) {
+                                    showingSearchInput = true
+                                }
+                            } label: {
+                                Image(systemName: "magnifyingglass")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundStyle(TidoDesign.Color.textSecondary)
+                                    .padding(.horizontal, TidoDesign.Spacing.sm)
+                                    .padding(.vertical, 8)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
+                .padding(TidoDesign.Spacing.sm)
             }
-            .padding(TidoDesign.Spacing.sm)
-        }
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            // Global tap to dismiss inputs and focus
-            if showingAddInput || showingSearchInput {
-                withAnimation(TidoDesign.Animation.spring) {
-                    showingAddInput = false
-                    showingSearchInput = false
+            .contentShape(Rectangle())
+            .onTapGesture {
+                // Global tap to dismiss inputs and focus
+                if showingAddInput || showingSearchInput {
+                    withAnimation(TidoDesign.Animation.spring) {
+                        showingAddInput = false
+                        showingSearchInput = false
+                    }
                 }
+                NSApp.keyWindow?.makeFirstResponder(nil)
             }
-            NSApp.keyWindow?.makeFirstResponder(nil)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
-            LaunchAtLoginService.shared.refreshState()
-        }
-        
+
             // Custom Inline Alert Overlay
             if showingRenameAlert || showingNewWorkspaceAlert {
                 Color.black.opacity(0.4)
@@ -339,6 +332,9 @@ struct TaskListView: View {
                 .transition(.scale(scale: 0.95).combined(with: .opacity))
                 .zIndex(100)
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
+            LaunchAtLoginService.shared.refreshState()
         }
         .onChange(of: workspaceNameInput) { _, newValue in
             if newValue.count > 10 {
