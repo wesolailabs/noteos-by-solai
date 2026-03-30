@@ -37,122 +37,117 @@ struct TaskListView: View {
             VStack(spacing: 0) {
 
             // Header Toolbar
-            ZStack {
-                // Workspace Selector (Left Wing)
-                HStack {
-                    Menu {
-                        Button {
-                            store.selectedWorkspace = nil
+            HStack(spacing: 0) {
+                // Workspace Selector (Left Section)
+                Menu {
+                    Button {
+                        store.selectedWorkspace = nil
+                    } label: {
+                        HStack {
+                            Text("All Workspaces")
+                            if store.selectedWorkspace == nil {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+
+                    Divider()
+
+                    ForEach(store.getAvailableWorkspaces(allTasks), id: \.self) { ws in
+                        Menu {
+                            Button {
+                                store.selectedWorkspace = ws
+                            } label: {
+                                Label("Select", systemImage: "checkmark")
+                            }
+                            
+                            Divider()
+                            
+                            Button {
+                                withAnimation(TidoDesign.Animation.quick) {
+                                    workspaceToRename = ws
+                                    workspaceNameInput = ws
+                                    showingRenameAlert = true
+                                }
+                            } label: {
+                                Label("Rename...", systemImage: "pencil")
+                            }
+                            
+                            Button(role: .destructive) {
+                                store.deleteWorkspace(ws)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
                         } label: {
                             HStack {
-                                Text("All Workspaces")
-                                if store.selectedWorkspace == nil {
+                                Text(ws)
+                                if store.selectedWorkspace == ws {
                                     Image(systemName: "checkmark")
                                 }
                             }
                         }
-
-                        Divider()
-
-                        ForEach(store.getAvailableWorkspaces(allTasks), id: \.self) { ws in
-                            Menu {
-                                Button {
-                                    store.selectedWorkspace = ws
-                                } label: {
-                                    Label("Select", systemImage: "checkmark")
-                                }
-                                
-                                Divider()
-                                
-                                Button {
-                                    withAnimation(TidoDesign.Animation.quick) {
-                                        workspaceToRename = ws
-                                        workspaceNameInput = ws
-                                        showingRenameAlert = true
-                                    }
-                                } label: {
-                                    Label("Rename...", systemImage: "pencil")
-                                }
-                                
-                                Button(role: .destructive) {
-                                    store.deleteWorkspace(ws)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            } label: {
-                                HStack {
-                                    Text(ws)
-                                    if store.selectedWorkspace == ws {
-                                        Image(systemName: "checkmark")
-                                    }
-                                }
-                            }
-                        }
-
-                        Divider()
-
-                        // Limit to max 5 workspaces total
-                        if store.getAvailableWorkspaces(allTasks).count < 5 {
-                            Button {
-                                withAnimation(TidoDesign.Animation.quick) {
-                                    workspaceNameInput = ""
-                                    showingNewWorkspaceAlert = true
-                                }
-                            } label: {
-                                Label("New Workspace...", systemImage: "plus.rectangle.on.folder")
-                            }
-                        }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: store.selectedWorkspace == nil ? "folder" : "folder.fill")
-                                .imageScale(.medium)
-                            if let selected = store.selectedWorkspace {
-                                Text(selected)
-                                    .font(TidoDesign.Font.caption.weight(.medium))
-                                    .lineLimit(1)
-                            }
-                        }
-                        .foregroundStyle(store.selectedWorkspace == nil ? TidoDesign.Color.textSecondary : TidoDesign.Color.accent)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 6)
-                        .background(
-                            (store.selectedWorkspace == nil ? Color.clear : TidoDesign.Color.accent.opacity(0.1))
-                                .continuousRoundedCorners(TidoDesign.Radius.sm)
-                        )
                     }
-                    .buttonStyle(.plain)
-                    .menuIndicator(.hidden)
-                    .help("Switch Workspace")
-                    
-                    Spacer()
-                }
 
-                // Filter Tabs (Center)
+                    Divider()
+
+                    // Limit to max 5 workspaces total
+                    if store.getAvailableWorkspaces(allTasks).count < 5 {
+                        Button {
+                            withAnimation(TidoDesign.Animation.quick) {
+                                workspaceNameInput = ""
+                                showingNewWorkspaceAlert = true
+                            }
+                        } label: {
+                            Label("New Workspace...", systemImage: "plus.rectangle.on.folder")
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: store.selectedWorkspace == nil ? "folder" : "folder.fill")
+                            .imageScale(.medium)
+                        if let selected = store.selectedWorkspace {
+                            Text(selected)
+                                .font(TidoDesign.Font.caption.weight(.medium))
+                                .lineLimit(1)
+                        }
+                    }
+                    .foregroundStyle(store.selectedWorkspace == nil ? TidoDesign.Color.textSecondary : TidoDesign.Color.accent)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .background(
+                        (store.selectedWorkspace == nil ? Color.clear : TidoDesign.Color.accent.opacity(0.1))
+                            .continuousRoundedCorners(TidoDesign.Radius.sm)
+                    )
+                }
+                .buttonStyle(.plain)
+                .menuIndicator(.hidden)
+                .help("Switch Workspace")
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                // Filter Tabs (Center Section)
                 FilterTabBar(
                     selection: $store.activeFilter,
                     pendingCount: allTasks.filter { !$0.isCompleted }.count,
                     doneCount: allTasks.filter { $0.isCompleted }.count
                 )
+                .layoutPriority(1)
 
-                // Settings Menu (Right Wing)
-                HStack {
-                    Spacer()
-                    Menu {
-                        Button(LaunchAtLoginService.shared.isEnabled ? "Disable Launch at Login" : "Launch at Login") {
-                            LaunchAtLoginService.shared.toggle()
-                        }
-                        Divider()
-                        Button("Quit Tido", role: .destructive) {
-                            NSApplication.shared.terminate(nil)
-                        }
-                    } label: {
-                        Image(systemName: "gearshape")
-                            .foregroundStyle(TidoDesign.Color.textSecondary)
+                // Settings Menu (Right Section)
+                Menu {
+                    Button(LaunchAtLoginService.shared.isEnabled ? "Disable Launch at Login" : "Launch at Login") {
+                        LaunchAtLoginService.shared.toggle()
                     }
-                    .menuStyle(.borderlessButton)
-                    .menuIndicator(.hidden)
-                    .frame(width: 24)
+                    Divider()
+                    Button("Quit Tido", role: .destructive) {
+                        NSApplication.shared.terminate(nil)
+                    }
+                } label: {
+                    Image(systemName: "gearshape")
+                        .foregroundStyle(TidoDesign.Color.textSecondary)
                 }
+                .menuStyle(.borderlessButton)
+                .menuIndicator(.hidden)
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .padding(.horizontal, TidoDesign.Spacing.md)
             .padding(.vertical, TidoDesign.Spacing.sm)
