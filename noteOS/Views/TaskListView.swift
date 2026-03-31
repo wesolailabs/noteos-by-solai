@@ -34,9 +34,11 @@ struct TaskListView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                // Header Toolbar
+                // Header Toolbar — fully symmetric: left/right slots balance the centered tabs
                 HStack(spacing: 0) {
-                    // Workspace Selector (Left Section)
+                    let headerSideSlotWidth: CGFloat = 72
+
+                    // LEFT SLOT — Workspace Selector
                     Menu {
                         Button {
                             store.selectedWorkspace = nil
@@ -58,7 +60,7 @@ struct TaskListView: View {
                                 } label: {
                                     Label("Select", systemImage: "checkmark")
                                 }
-                                
+
                                 if ws != "Personal" {
                                     Divider()
 
@@ -67,7 +69,7 @@ struct TaskListView: View {
                                     } label: {
                                         Label("Move Up", systemImage: "arrow.up")
                                     }
-                                    
+
                                     Button {
                                         store.moveWorkspaceDown(ws)
                                     } label: {
@@ -75,7 +77,7 @@ struct TaskListView: View {
                                     }
 
                                     Divider()
-                                    
+
                                     Button {
                                         withAnimation(NoteOSDesign.Animation.quick) {
                                             workspaceToRename = ws
@@ -85,7 +87,7 @@ struct TaskListView: View {
                                     } label: {
                                         Label("Rename...", systemImage: "pencil")
                                     }
-                                    
+
                                     Button(role: .destructive) {
                                         store.deleteWorkspace(ws)
                                     } label: {
@@ -104,7 +106,6 @@ struct TaskListView: View {
 
                         Divider()
 
-                        // Limit to max 10 workspaces total to prevent the dropdown from overflowing the screen
                         if store.getAvailableWorkspaces(allTasks).count < 10 {
                             Button {
                                 withAnimation(NoteOSDesign.Animation.quick) {
@@ -129,26 +130,25 @@ struct TaskListView: View {
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(
-                            (store.selectedWorkspace == nil ? Color.clear : NoteOSDesign.Color.accent.opacity(0.1))
+                            (store.selectedWorkspace == nil ? Color.clear : NoteOSDesign.Color.accent.opacity(0.10))
                                 .continuousRoundedCorners(NoteOSDesign.Radius.sm)
                         )
-                        .frame(minWidth: 55, maxWidth: 80) // Flexible width to fit up to 10 characters cleanly
                     }
                     .buttonStyle(.plain)
                     .menuIndicator(.hidden)
                     .help("Switch Workspace")
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(width: headerSideSlotWidth, alignment: .leading)
 
-                    // Filter Tabs (Center Section)
+                    // CENTER — Filter Tabs
                     let pending = allTasks.filter { !$0.isCompleted }.count
                     FilterTabBar(
                         selection: $store.activeFilter,
                         pendingCount: pending,
                         doneCount: allTasks.count - pending
                     )
-                    .layoutPriority(1)
+                    .frame(maxWidth: .infinity, alignment: .center)
 
-                    // Settings Menu (Right Section)
+                    // RIGHT SLOT — Settings Menu (same fixed width as left slot)
                     Menu {
                         Button {
                             isPinned.toggle()
@@ -160,7 +160,7 @@ struct TaskListView: View {
                                 }
                             }
                         }
-                        
+
                         Button(LaunchAtLoginService.shared.isEnabled ? "Disable Launch at Login" : "Launch at Login") {
                             LaunchAtLoginService.shared.toggle()
                         }
@@ -169,17 +169,25 @@ struct TaskListView: View {
                             NSApplication.shared.terminate(nil)
                         }
                     } label: {
+                        // Mirror the workspace button dimensions
                         Image(systemName: "gearshape")
+                            .font(.system(size: 14, weight: .regular))
                             .foregroundStyle(NoteOSDesign.Color.textSecondary)
                     }
                     .menuStyle(.borderlessButton)
                     .menuIndicator(.hidden)
-                    .frame(maxWidth: .infinity, alignment: .center)
+                    .frame(width: headerSideSlotWidth, alignment: .trailing)
                 }
-                .padding(.horizontal, NoteOSDesign.Spacing.md)
+                .padding(.horizontal, NoteOSDesign.Spacing.sm)
                 .padding(.vertical, NoteOSDesign.Spacing.sm)
 
-                Color.clear.frame(height: 1)
+                // Content Separator with subtle gradient
+                LinearGradient(
+                    colors: [.primary.opacity(0.0), .primary.opacity(0.05), .primary.opacity(0.0)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .frame(height: 1)
 
                 // Task List Content
                 let filteredTasks = store.filtered(allTasks)
@@ -234,7 +242,7 @@ struct TaskListView: View {
 
                 Color.clear.frame(height: 1)
 
-                // Bottom Add Action
+                // Bottom action bar
                 ZStack {
                     if showingAddInput {
                         AddTaskField(
@@ -260,7 +268,7 @@ struct TaskListView: View {
                         )
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                     } else {
-                        HStack {
+                        HStack(spacing: 0) {
                             Button {
                                 withAnimation(NoteOSDesign.Animation.spring) {
                                     showingAddInput = true
@@ -278,12 +286,15 @@ struct TaskListView: View {
                                     Spacer()
                                 }
                                 .foregroundStyle(NoteOSDesign.Color.textSecondary)
-                                .padding(.vertical, NoteOSDesign.Spacing.sm * 0.8)
-                                .padding(.horizontal, NoteOSDesign.Spacing.sm)
-                                .contentShape(Rectangle())
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
+                                .background(Color.primary.opacity(0.03))
+                                .continuousRoundedCorners(NoteOSDesign.Radius.md)
                             }
                             .buttonStyle(.plain)
                             .keyboardShortcut("n", modifiers: .command)
+
+                            Spacer(minLength: 12)
 
                             Button {
                                 withAnimation(NoteOSDesign.Animation.spring) {
@@ -291,18 +302,21 @@ struct TaskListView: View {
                                 }
                             } label: {
                                 Image(systemName: "magnifyingglass")
-                                    .font(.system(size: 14, weight: .medium))
+                                    .font(.system(size: 13, weight: .medium))
                                     .foregroundStyle(NoteOSDesign.Color.textSecondary)
-                                    .padding(.horizontal, NoteOSDesign.Spacing.sm)
+                                    .padding(.horizontal, 12)
                                     .padding(.vertical, 8)
-                                    .contentShape(Rectangle())
+                                    .background(Color.primary.opacity(0.03))
+                                    .continuousRoundedCorners(NoteOSDesign.Radius.md)
                             }
                             .buttonStyle(.plain)
                         }
                         .transition(.opacity)
                     }
                 }
-                .padding(NoteOSDesign.Spacing.sm)
+                .padding(.horizontal, NoteOSDesign.Spacing.md)
+                .padding(.top, NoteOSDesign.Spacing.xs)
+                .padding(.bottom, NoteOSDesign.Spacing.sm + 2)
             }
             .contentShape(Rectangle())
             .onTapGesture {
@@ -316,51 +330,90 @@ struct TaskListView: View {
                 NSApp.keyWindow?.makeFirstResponder(nil)
             }
 
-            // Custom Inline Alert Overlay
+            // Premium Floating Glass Alert Overlay
             if showingRenameAlert || showingNewWorkspaceAlert {
-                Color.black.opacity(0.4)
+                // Scrim
+                Color.black.opacity(0.35)
                     .edgesIgnoringSafeArea(.all)
                     .onTapGesture { closeAlerts() }
-                
+                    .transition(.opacity)
+
+                // Glass card
                 VStack(spacing: NoteOSDesign.Spacing.md) {
-                    Text(showingRenameAlert ? "Rename Workspace" : "New Workspace")
-                        .font(NoteOSDesign.Font.taskTitle.weight(.semibold))
-                        .foregroundStyle(NoteOSDesign.Color.textPrimary)
-                    
-                    TextField("Workspace Name", text: $workspaceNameInput)
+                    // Title
+                    HStack {
+                        Text(showingRenameAlert ? "Rename Workspace" : "New Workspace")
+                            .font(NoteOSDesign.Font.taskTitle.weight(.semibold))
+                            .foregroundStyle(NoteOSDesign.Color.textPrimary)
+                        Spacer()
+                    }
+
+                    // Input field with premium ring
+                    TextField("Name (max 10 chars)", text: $workspaceNameInput)
                         .textFieldStyle(.plain)
                         .font(NoteOSDesign.Font.input)
-                        .padding(8)
-                        .background(NoteOSDesign.Color.rowHover.opacity(0.5).continuousRoundedCorners(NoteOSDesign.Radius.sm))
-                        .overlay(RoundedRectangle(cornerRadius: NoteOSDesign.Radius.sm).strokeBorder(NoteOSDesign.Color.separator, lineWidth: 1))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: NoteOSDesign.Radius.sm, style: .continuous)
+                                .fill(Color.primary.opacity(0.06))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: NoteOSDesign.Radius.sm, style: .continuous)
+                                .strokeBorder(NoteOSDesign.Color.accent.opacity(0.45), lineWidth: 1)
+                        )
                         .onSubmit { submitAlert() }
-                    
-                    HStack(spacing: NoteOSDesign.Spacing.md) {
+
+                    // Actions
+                    HStack(spacing: NoteOSDesign.Spacing.sm) {
                         Button("Cancel") {
                             closeAlerts()
                         }
                         .keyboardShortcut(.escape, modifiers: [])
                         .buttonStyle(.plain)
+                        .font(NoteOSDesign.Font.header)
                         .foregroundStyle(NoteOSDesign.Color.textSecondary)
-                        
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: NoteOSDesign.Radius.sm, style: .continuous)
+                                .fill(Color.primary.opacity(0.06))
+                        )
+
                         Spacer()
-                        
+
                         Button(showingRenameAlert ? "Rename" : "Create") {
                             submitAlert()
                         }
                         .keyboardShortcut(.defaultAction)
                         .buttonStyle(.plain)
-                        .padding(.horizontal, 12)
+                        .font(NoteOSDesign.Font.header.weight(.semibold))
+                        .padding(.horizontal, 14)
                         .padding(.vertical, 6)
-                        .background(NoteOSDesign.Color.accent.continuousRoundedCorners(NoteOSDesign.Radius.sm))
+                        .background(
+                            RoundedRectangle(cornerRadius: NoteOSDesign.Radius.sm, style: .continuous)
+                                .fill(NoteOSDesign.Color.accent)
+                        )
                         .foregroundStyle(.white)
                     }
                 }
                 .padding(NoteOSDesign.Spacing.lg)
-                .background(Material.regular, in: RoundedRectangle(cornerRadius: NoteOSDesign.Radius.lg, style: .continuous))
-                .shadow(color: Color.black.opacity(0.15), radius: 10, y: 4)
-                .frame(width: 260)
-                .transition(.scale(scale: 0.95).combined(with: .opacity))
+                .background(Material.ultraThinMaterial, in: RoundedRectangle(cornerRadius: NoteOSDesign.Radius.lg + 2, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: NoteOSDesign.Radius.lg + 2, style: .continuous)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [.white.opacity(0.18), .white.opacity(0.05)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.8
+                        )
+                )
+                .shadow(color: Color.black.opacity(0.22), radius: 24, x: 0, y: 8)
+                .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 1)
+                .frame(width: 272)
+                .transition(.scale(scale: 0.96).combined(with: .opacity))
                 .zIndex(100)
             }
         }
