@@ -86,7 +86,7 @@ struct NoteOSApp: App {
         MenuBarExtra {
             MenuBarView()
                 .modelContainer(modelContainer)
-                .frame(width: 380)
+                .frame(width: NoteOSDesign.Size.popoverWidth)
         } label: {
             MenuBarLabel()
         }
