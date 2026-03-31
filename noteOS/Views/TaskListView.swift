@@ -60,6 +60,20 @@ struct TaskListView: View {
                                 
                                 if ws != "Personal" {
                                     Divider()
+
+                                    Button {
+                                        store.moveWorkspaceUp(ws)
+                                    } label: {
+                                        Label("Move Up", systemImage: "arrow.up")
+                                    }
+                                    
+                                    Button {
+                                        store.moveWorkspaceDown(ws)
+                                    } label: {
+                                        Label("Move Down", systemImage: "arrow.down")
+                                    }
+
+                                    Divider()
                                     
                                     Button {
                                         withAnimation(TidoDesign.Animation.quick) {

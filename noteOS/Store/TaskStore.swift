@@ -113,13 +113,20 @@ final class TaskStore: ObservableObject {
     
     private let customWorkspacesKey = "tido_custom_workspaces"
     
-    private var savedWorkspaces: Set<String> {
+    private var savedWorkspaces: [String] {
         get {
             let array = UserDefaults.standard.stringArray(forKey: customWorkspacesKey) ?? []
-            return Set(array)
+            // Preserve order while removing duplicates and 'Personal'
+            var unique: [String] = []
+            for ws in array {
+                if ws != "Personal", !unique.contains(ws) {
+                    unique.append(ws)
+                }
+            }
+            return unique
         }
         set {
-            UserDefaults.standard.set(Array(newValue), forKey: customWorkspacesKey)
+            UserDefaults.standard.set(newValue, forKey: customWorkspacesKey)
             objectWillChange.send()
         }
     }
@@ -129,8 +136,10 @@ final class TaskStore: ObservableObject {
         guard !trimmed.isBlank else { return }
         
         var ws = savedWorkspaces
-        ws.insert(trimmed)
-        savedWorkspaces = ws
+        if !ws.contains(trimmed) && trimmed != "Personal" {
+            ws.append(trimmed)
+            savedWorkspaces = ws
+        }
         
         selectedWorkspace = trimmed
     }
@@ -152,10 +161,11 @@ final class TaskStore: ObservableObject {
         
         // Update UserDefaults
         var ws = savedWorkspaces
-        if ws.contains(oldName) {
-            ws.remove(oldName)
+        if let index = ws.firstIndex(of: oldName) {
+            ws[index] = trimmed // Swap in-place to preserve order
+        } else if !ws.contains(trimmed) {
+            ws.append(trimmed)
         }
-        ws.insert(trimmed)
         savedWorkspaces = ws
         
         // Update current selection if it matches
@@ -180,7 +190,7 @@ final class TaskStore: ObservableObject {
         
         // Update UserDefaults
         var ws = savedWorkspaces
-        ws.remove(name)
+        ws.removeAll { $0 == name }
         savedWorkspaces = ws
         
         // Reset selection if it was the deleted workspace
@@ -189,6 +199,24 @@ final class TaskStore: ObservableObject {
         }
         
         save()
+    }
+    
+    func moveWorkspaceUp(_ name: String) {
+        guard name != "Personal" else { return }
+        var ws = savedWorkspaces
+        if let idx = ws.firstIndex(of: name), idx > 0 {
+            ws.swapAt(idx, idx - 1)
+            savedWorkspaces = ws
+        }
+    }
+
+    func moveWorkspaceDown(_ name: String) {
+        guard name != "Personal" else { return }
+        var ws = savedWorkspaces
+        if let idx = ws.firstIndex(of: name), idx < ws.count - 1 {
+            ws.swapAt(idx, idx + 1)
+            savedWorkspaces = ws
+        }
     }
 
     // MARK: - Subtask CRUD
@@ -255,13 +283,21 @@ final class TaskStore: ObservableObject {
 
     /// Dynamic list of workspaces based on existing tasks and saved custom empty ones
     func getAvailableWorkspaces(_ tasks: [TaskItem]) -> [String] {
-        var baseWorkspaces = Set(["Personal"])
+        var ordered = ["Personal"]
+        let saved = savedWorkspaces
+        ordered.append(contentsOf: saved)
+        
+        // Include workspaces found in tasks or selection that aren't naturally tracked
+        var runtimeFound = Set(tasks.map(\.workspace))
         if let selected = selectedWorkspace {
-            baseWorkspaces.insert(selected)
+            runtimeFound.insert(selected)
         }
-        baseWorkspaces.formUnion(savedWorkspaces)
-        let unique = Set(tasks.map(\.workspace)).union(baseWorkspaces)
-        return Array(unique).sorted()
+        runtimeFound.remove("Personal")
+        
+        let unsaved = runtimeFound.subtracting(Set(saved)).sorted()
+        ordered.append(contentsOf: unsaved)
+        
+        return ordered
     }
 
     // MARK: - Private
