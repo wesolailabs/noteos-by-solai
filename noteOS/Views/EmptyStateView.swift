@@ -14,7 +14,7 @@ struct EmptyStateView: View {
     private var symbol: String {
         switch filter {
         case .all:     return "checklist"
-        case .pending: return "sparkles"
+        case .pending: return "tray"
         case .done:    return "checkmark.seal.fill"
         }
     }
