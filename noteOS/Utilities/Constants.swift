@@ -1,5 +1,5 @@
 // Constants.swift
-// Tido — Utilities
+// noteOS — Utilities
 // Design system tokens: colors, spacing, typography, animation curves.
 // All design decisions live here for consistency and easy theme changes.
 
@@ -7,7 +7,7 @@ import SwiftUI
 
 // MARK: - Design Tokens
 
-enum TidoDesign {
+enum NoteOSDesign {
 
     // MARK: Colors
 

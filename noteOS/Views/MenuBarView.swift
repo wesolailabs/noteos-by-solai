@@ -1,5 +1,5 @@
 // MenuBarView.swift
-// Tido — Views
+// noteOS — Views
 // The root view inside the MenuBarExtra window.
 // Responsible for sizing, styling the popover background, and routing to TaskListView.
 
@@ -17,8 +17,8 @@ struct MenuBarView: View {
         VStack(spacing: 0) {
             TaskListView(context: modelContext)
         }
-        .frame(width: TidoDesign.Size.popoverWidth)
-        .frame(minHeight: 200, maxHeight: TidoDesign.Size.popoverMaxHeight)
+        .frame(width: NoteOSDesign.Size.popoverWidth)
+        .frame(minHeight: 200, maxHeight: NoteOSDesign.Size.popoverMaxHeight)
         // ultraThin gives that high-end glassy translucency
         .background(Material.ultraThin)
         // Window styling hack using introspect
@@ -49,10 +49,10 @@ struct MenuBarView: View {
 
         // Optionally set corner radius on the content view
         window.contentView?.wantsLayer = true
-        window.contentView?.layer?.cornerRadius = TidoDesign.Radius.xl
+        window.contentView?.layer?.cornerRadius = NoteOSDesign.Radius.xl
         window.contentView?.layer?.masksToBounds = true
 
-        // Always keep Tido popover above other windows
+        // Always keep noteOS popover above other windows
         window.level = .floating
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
 

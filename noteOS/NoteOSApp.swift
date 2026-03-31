@@ -1,5 +1,5 @@
-// TidoApp.swift
-// Tido — Premium macOS Menu Bar App
+// noteOS — Root
+// noteOS — Premium macOS Menu Bar App
 // Entry point: registers MenuBarExtra and injects the SwiftData container.
 
 import SwiftUI
@@ -7,7 +7,7 @@ import SwiftData
 import AppKit
 
 @main
-struct TidoApp: App {
+struct NoteOSApp: App {
 
 
     // MARK: - SwiftData container
@@ -15,25 +15,42 @@ struct TidoApp: App {
     private let modelContainer: ModelContainer = {
         let schema = Schema([TaskItem.self, SubTaskItem.self])
 
-        // 1. Define an explicit URL to stay in control of the file path
+        // 1. Define explicit URLs for migration and storage
         let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let storageURL = appSupportURL.appendingPathComponent("TidoStore.sqlite")
+        let oldStorageURL = appSupportURL.appendingPathComponent("TidoStore.sqlite")
+        let storageURL = appSupportURL.appendingPathComponent("NoteOSStore.sqlite")
+        
+        // Data Migration logic: Move old Tido storage to new NoteOS storage if it exists
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: oldStorageURL.path) && !fileManager.fileExists(atPath: storageURL.path) {
+            let filesToMove = [
+                (old: oldStorageURL, new: storageURL),
+                (old: oldStorageURL.appendingPathExtension("shm"), new: storageURL.appendingPathExtension("shm")),
+                (old: oldStorageURL.appendingPathExtension("wal"), new: storageURL.appendingPathExtension("wal"))
+            ]
+            for pair in filesToMove {
+                try? fileManager.moveItem(at: pair.old, to: pair.new)
+            }
+        }
+
         let config = ModelConfiguration(url: storageURL)
 
         func clearStorage() {
-            let fileManager = FileManager.default
             // Delete the explicit Store
             let storeFiles = [
                 storageURL,
                 storageURL.appendingPathExtension("shm"),
-                storageURL.appendingPathExtension("wal")
+                storageURL.appendingPathExtension("wal"),
+                oldStorageURL,
+                oldStorageURL.appendingPathExtension("shm"),
+                oldStorageURL.appendingPathExtension("wal")
             ]
             for url in storeFiles {
                 try? fileManager.removeItem(at: url)
             }
 
             // Also search for the default SwiftData location just in case
-            let bundleID = Bundle.main.bundleIdentifier ?? "Tido"
+            let bundleID = Bundle.main.bundleIdentifier ?? "noteOS"
             let defaultFolder = appSupportURL.appendingPathComponent(bundleID)
             let defaultFiles = ["default.store", "default.store-shm", "default.store-wal"]
             for file in defaultFiles {
@@ -45,7 +62,7 @@ struct TidoApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
-            print("Tido: Storage initialization failed. Wiping data for fresh start...")
+            print("noteOS: Storage initialization failed. Wiping data for fresh start...")
             clearStorage()
 
             do {
@@ -53,12 +70,12 @@ struct TidoApp: App {
                 return try ModelContainer(for: schema, configurations: [config])
             } catch {
                 // Last ditch effort: Try in-memory if disk is truly broken
-                print("Tido: Disk storage is unusable. Falling back to in-memory.")
+                print("noteOS: Disk storage is unusable. Falling back to in-memory.")
                 let memConfig = ModelConfiguration(isStoredInMemoryOnly: true)
                 return try! ModelContainer(for: schema, configurations: [memConfig])
             }
         }
-    }()
+    }();
 
     // MARK: - Body
 

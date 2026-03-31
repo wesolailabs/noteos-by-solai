@@ -1,5 +1,5 @@
 // TaskRowView.swift
-// Tido — Views
+// noteOS — Views
 // A single top-level task row. Supports swipe actions, subtask expansion, and inline creation.
 
 import SwiftUI
@@ -19,9 +19,9 @@ struct TaskRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             mainContent
-                .padding(.horizontal, TidoDesign.Spacing.md)
-                .frame(minHeight: TidoDesign.Size.rowMinHeight)
-                .tidoRowBackground(isHovered: isHovered)
+                .padding(.horizontal, NoteOSDesign.Spacing.md)
+                .frame(minHeight: NoteOSDesign.Size.rowMinHeight)
+                .noteOSRowBackground(isHovered: isHovered)
                 .onHover { isHovered = $0 }
                 .contextMenu {
                     Button(task.isCompleted ? "Mark Incomplete" : "Mark Complete") {
@@ -62,18 +62,18 @@ struct TaskRowView: View {
                                 withAnimation { showSubtaskInput = false }
                             }
                         )
-                        .padding(.vertical, TidoDesign.Spacing.xs)
-                        .padding(.horizontal, TidoDesign.Spacing.md)
+                        .padding(.vertical, NoteOSDesign.Spacing.xs)
+                        .padding(.horizontal, NoteOSDesign.Spacing.md)
                     }
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .animation(TidoDesign.Animation.spring, value: isExpanded)
+        .animation(NoteOSDesign.Animation.spring, value: isExpanded)
     }
 
     private var mainContent: some View {
-        HStack(spacing: TidoDesign.Spacing.sm) {
+        HStack(spacing: NoteOSDesign.Spacing.sm) {
             CheckboxView(
                 isCompleted: task.isCompleted,
                 size: .task,
@@ -82,22 +82,22 @@ struct TaskRowView: View {
 
             if isEditing {
                 TextField("Task…", text: $editText)
-                    .font(TidoDesign.Font.taskTitle)
+                    .font(NoteOSDesign.Font.taskTitle)
                     .textFieldStyle(.plain)
                     .focused($isTextFieldFocused)
                     .onSubmit { commitEdit() }
                     .onKeyPress(.escape) { cancelEdit(); return .handled }
             } else {
                 Text(task.title)
-                    .font(TidoDesign.Font.taskTitle)
+                    .font(NoteOSDesign.Font.taskTitle)
                     .foregroundStyle(
                         task.isCompleted
-                            ? TidoDesign.Color.textCompleted
-                            : TidoDesign.Color.textPrimary
+                            ? NoteOSDesign.Color.textCompleted
+                            : NoteOSDesign.Color.textPrimary
                     )
-                    .strikethrough(task.isCompleted, color: TidoDesign.Color.textCompleted)
+                    .strikethrough(task.isCompleted, color: NoteOSDesign.Color.textCompleted)
                     .lineLimit(2)
-                    .animation(TidoDesign.Animation.quick, value: task.isCompleted)
+                    .animation(NoteOSDesign.Animation.quick, value: task.isCompleted)
             }
 
             Spacer()
@@ -110,16 +110,16 @@ struct TaskRowView: View {
                         Image(systemName: "checklist")
                             .font(.system(size: 10, weight: .semibold))
                         Text("\(task.completedSubtaskCount)/\(task.subtasks.count)")
-                            .font(TidoDesign.Font.badge)
+                            .font(NoteOSDesign.Font.badge)
                     }
                     .foregroundStyle(
                         task.allSubtasksCompleted
-                            ? TidoDesign.Color.success
-                            : TidoDesign.Color.textTertiary
+                            ? NoteOSDesign.Color.success
+                            : NoteOSDesign.Color.textTertiary
                     )
                     .padding(.horizontal, 6)
                     .padding(.vertical, 3)
-                    .background(Color.primary.opacity(0.06).continuousRoundedCorners(TidoDesign.Radius.sm))
+                    .background(Color.primary.opacity(0.06).continuousRoundedCorners(NoteOSDesign.Radius.sm))
                 }
                 .buttonStyle(.plain)
             }
@@ -136,16 +136,16 @@ struct TaskRowView: View {
 
                 Button(action: { store.deleteTask(task) }) {
                     Image(systemName: "trash")
-                        .foregroundStyle(TidoDesign.Color.destructive.opacity(0.8))
+                        .foregroundStyle(NoteOSDesign.Color.destructive.opacity(0.8))
                 }
             }
             .frame(width: 50, alignment: .trailing)
             .font(.system(size: 11, weight: .medium))
-            .foregroundStyle(TidoDesign.Color.textSecondary)
+            .foregroundStyle(NoteOSDesign.Color.textSecondary)
             .buttonStyle(.plain)
             .opacity((isHovered && !isEditing) ? 1.0 : 0.0)
-            .animation(TidoDesign.Animation.quick, value: isHovered)
-            .animation(TidoDesign.Animation.quick, value: isEditing)
+            .animation(NoteOSDesign.Animation.quick, value: isHovered)
+            .animation(NoteOSDesign.Animation.quick, value: isEditing)
         }
         .contentShape(Rectangle())
         .onTapGesture(count: 2) {

@@ -1,5 +1,5 @@
 // LaunchAtLoginService.swift
-// Tido — Services
+// noteOS — Services
 // Manages "Launch at Login" using ServiceManagement framework (macOS 13+).
 // SMAppService is the modern, sandboxed-safe replacement for the deprecated LSSharedFileList API.
 
@@ -45,7 +45,7 @@ final class LaunchAtLoginService: ObservableObject {
             try SMAppService.mainApp.register()
             isEnabled = true
         } catch {
-            print("Tido: Could not enable launch at login — \(error.localizedDescription)")
+            print("noteOS: Could not enable launch at login — \(error.localizedDescription)")
         }
     }
 
@@ -54,7 +54,7 @@ final class LaunchAtLoginService: ObservableObject {
             try SMAppService.mainApp.unregister()
             isEnabled = false
         } catch {
-            print("Tido: Could not disable launch at login — \(error.localizedDescription)")
+            print("noteOS: Could not disable launch at login — \(error.localizedDescription)")
         }
     }
 }

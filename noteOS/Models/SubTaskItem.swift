@@ -1,5 +1,5 @@
 // SubTaskItem.swift
-// Tido — Models
+// noteOS — Models
 // Secondary data model for subtasks. Belongs to a TaskItem via inverse relationship.
 
 import SwiftData

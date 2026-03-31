@@ -1,5 +1,5 @@
 // EmptyStateView.swift
-// Tido — Views
+// noteOS — Views
 // Displayed when there are no tasks matching the current filter/search.
 // Premium illustration-style empty state with contextual messaging.
 
@@ -38,36 +38,36 @@ struct EmptyStateView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: TidoDesign.Spacing.md) {
+        VStack(spacing: NoteOSDesign.Spacing.md) {
             // Icon orb
             ZStack {
                 Circle()
-                    .fill(TidoDesign.Color.accent.opacity(0.08))
+                    .fill(NoteOSDesign.Color.accent.opacity(0.08))
                     .frame(width: 64, height: 64)
 
                 Circle()
-                    .fill(TidoDesign.Color.accent.opacity(0.12))
+                    .fill(NoteOSDesign.Color.accent.opacity(0.12))
                     .frame(width: 48, height: 48)
 
                 Image(systemName: symbol)
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(TidoDesign.Color.accent.opacity(0.7))
+                    .foregroundStyle(NoteOSDesign.Color.accent.opacity(0.7))
                     .symbolRenderingMode(.hierarchical)
             }
 
-            VStack(spacing: TidoDesign.Spacing.xxs) {
+            VStack(spacing: NoteOSDesign.Spacing.xxs) {
                 Text(title)
-                    .font(TidoDesign.Font.title)
-                    .foregroundStyle(TidoDesign.Color.textPrimary)
+                    .font(NoteOSDesign.Font.title)
+                    .foregroundStyle(NoteOSDesign.Color.textPrimary)
 
                 Text(subtitle)
-                    .font(TidoDesign.Font.caption)
-                    .foregroundStyle(TidoDesign.Color.textTertiary)
+                    .font(NoteOSDesign.Font.caption)
+                    .foregroundStyle(NoteOSDesign.Color.textTertiary)
                     .multilineTextAlignment(.center)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, TidoDesign.Spacing.xl)
+        .padding(.vertical, NoteOSDesign.Spacing.xl)
         .transition(.opacity.combined(with: .scale(scale: 0.95)))
     }
 }

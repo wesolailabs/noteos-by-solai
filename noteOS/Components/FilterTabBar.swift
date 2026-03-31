@@ -1,5 +1,5 @@
 // FilterTabBar.swift
-// Tido — Components
+// noteOS — Components
 // Segmented filter control: All / Pending / Done.
 // Uses a custom pill-style indicator for a premium feel over the default Picker.
 
@@ -25,7 +25,7 @@ struct FilterTabBar: View {
         }
         .padding(2)
         .background(
-            RoundedRectangle(cornerRadius: TidoDesign.Radius.md, style: .continuous)
+            RoundedRectangle(cornerRadius: NoteOSDesign.Radius.md, style: .continuous)
                 .fill(.primary.opacity(0.06))
         )
     }
@@ -41,29 +41,29 @@ struct FilterTabBar: View {
                 .font(.system(size: 10, weight: .semibold))
 
             Text(filter.rawValue)
-                .font(TidoDesign.Font.header)
+                .font(NoteOSDesign.Font.header)
 
             // Count badge
             if let count = badgeCount(for: filter), count > 0 {
                 Text("\(count)")
-                    .font(TidoDesign.Font.badge)
-                    .foregroundStyle(isSelected ? TidoDesign.Color.accent : TidoDesign.Color.textTertiary)
+                    .font(NoteOSDesign.Font.badge)
+                    .foregroundStyle(isSelected ? NoteOSDesign.Color.accent : NoteOSDesign.Color.textTertiary)
                     .padding(.horizontal, 4)
                     .padding(.vertical, 0.5)
                     .background(
                         Capsule()
                             .fill(isSelected
-                                  ? TidoDesign.Color.accent.opacity(0.15)
+                                  ? NoteOSDesign.Color.accent.opacity(0.15)
                                   : Color.primary.opacity(0.07))
                     )
             }
         }
-        .foregroundStyle(isSelected ? TidoDesign.Color.accent : TidoDesign.Color.textSecondary)
+        .foregroundStyle(isSelected ? NoteOSDesign.Color.accent : NoteOSDesign.Color.textSecondary)
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .contentShape(Rectangle())
         .onTapGesture {
-            withAnimation(TidoDesign.Animation.spring) {
+            withAnimation(NoteOSDesign.Animation.spring) {
                 selection = filter
             }
         }
@@ -71,7 +71,7 @@ struct FilterTabBar: View {
         .background(
             Group {
                 if isSelected {
-                    RoundedRectangle(cornerRadius: TidoDesign.Radius.sm, style: .continuous)
+                    RoundedRectangle(cornerRadius: NoteOSDesign.Radius.sm, style: .continuous)
                         .fill(.background)
                         .matchedGeometryEffect(id: "tab_pill", in: tabNamespace, isSource: false)
                         .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 1)

@@ -1,5 +1,5 @@
 // SubTaskRowView.swift
-// Tido — Components
+// noteOS — Components
 // A single subtask row: checkbox + inline-editable title + swipe/hover delete.
 
 import SwiftUI
@@ -23,10 +23,10 @@ struct SubTaskRowView: View {
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: TidoDesign.Spacing.sm) {
+        HStack(spacing: NoteOSDesign.Spacing.sm) {
             // Indent spacer to align under parent task content
             Spacer()
-                .frame(width: TidoDesign.Size.checkboxSize + TidoDesign.Spacing.sm)
+                .frame(width: NoteOSDesign.Size.checkboxSize + NoteOSDesign.Spacing.sm)
 
             // Checkbox
             CheckboxView(
@@ -38,22 +38,22 @@ struct SubTaskRowView: View {
             // Title / edit field
             if isEditing {
                 TextField("Subtask…", text: $editText)
-                    .font(TidoDesign.Font.subtask)
+                    .font(NoteOSDesign.Font.subtask)
                     .textFieldStyle(.plain)
                     .focused($isTextFieldFocused)
                     .onSubmit { commitEdit() }
                     .onKeyPress(.escape) { cancelEdit(); return .handled }
             } else {
                 Text(subtask.title)
-                    .font(TidoDesign.Font.subtask)
+                    .font(NoteOSDesign.Font.subtask)
                     .foregroundStyle(
                         subtask.isCompleted
-                            ? TidoDesign.Color.textCompleted
-                            : TidoDesign.Color.textPrimary
+                            ? NoteOSDesign.Color.textCompleted
+                            : NoteOSDesign.Color.textPrimary
                     )
-                    .strikethrough(subtask.isCompleted, color: TidoDesign.Color.textCompleted)
+                    .strikethrough(subtask.isCompleted, color: NoteOSDesign.Color.textCompleted)
                     .lineLimit(2)
-                    .animation(TidoDesign.Animation.quick, value: subtask.isCompleted)
+                    .animation(NoteOSDesign.Animation.quick, value: subtask.isCompleted)
             }
 
             Spacer()
@@ -62,19 +62,19 @@ struct SubTaskRowView: View {
             Button(action: onDelete) {
                 Image(systemName: "xmark")
                     .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(TidoDesign.Color.textTertiary)
+                    .foregroundStyle(NoteOSDesign.Color.textTertiary)
             }
             .buttonStyle(.plain)
             .opacity((isHovered && !isEditing) ? 1.0 : 0.0)
-            .animation(TidoDesign.Animation.quick, value: isHovered)
+            .animation(NoteOSDesign.Animation.quick, value: isHovered)
         }
         .contentShape(Rectangle())
         .onTapGesture(count: 2) {
             if !isEditing { startEdit() }
         }
-        .padding(.horizontal, TidoDesign.Spacing.md)
-        .frame(minHeight: TidoDesign.Size.subtaskMinHeight)
-        .tidoRowBackground(isHovered: isHovered, cornerRadius: TidoDesign.Radius.sm)
+        .padding(.horizontal, NoteOSDesign.Spacing.md)
+        .frame(minHeight: NoteOSDesign.Size.subtaskMinHeight)
+        .noteOSRowBackground(isHovered: isHovered, cornerRadius: NoteOSDesign.Radius.sm)
         .onHover { isHovered = $0 }
     }
 

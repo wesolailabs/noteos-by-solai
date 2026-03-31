@@ -1,5 +1,5 @@
 // TaskItem.swift
-// Tido — Models
+// noteOS — Models
 // Primary data model for a task. Uses SwiftData @Model macro for automatic persistence.
 
 import SwiftData

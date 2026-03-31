@@ -1,5 +1,5 @@
 // TaskStore.swift
-// Tido — Store
+// noteOS — Store
 // Central state manager. Wraps SwiftData context operations and exposes clean,
 // testable actions to the views. All mutations go through here.
 
@@ -111,10 +111,18 @@ final class TaskStore: ObservableObject {
 
     // MARK: - Workspace Management
     
-    private let customWorkspacesKey = "tido_custom_workspaces"
+    private let customWorkspacesKey = "noteos_custom_workspaces"
     
     private var savedWorkspaces: [String] {
         get {
+            // Migration logic: Check if old key exists and new one doesn't
+            let oldKey = "tido_custom_workspaces"
+            if let oldArray = UserDefaults.standard.stringArray(forKey: oldKey),
+               UserDefaults.standard.stringArray(forKey: customWorkspacesKey) == nil {
+                UserDefaults.standard.set(oldArray, forKey: customWorkspacesKey)
+                UserDefaults.standard.removeObject(forKey: oldKey)
+            }
+
             let array = UserDefaults.standard.stringArray(forKey: customWorkspacesKey) ?? []
             // Preserve order while removing duplicates and 'Personal'
             var unique: [String] = []
@@ -306,7 +314,7 @@ final class TaskStore: ObservableObject {
         do {
             try context.save()
         } catch {
-            print("Tido: SwiftData save error — \(error.localizedDescription)")
+            print("noteOS: SwiftData save error — \(error.localizedDescription)")
         }
     }
 }

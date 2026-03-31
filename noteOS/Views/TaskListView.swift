@@ -1,5 +1,5 @@
 // TaskListView.swift
-// Tido — Views
+// noteOS — Views
 // The main list displaying filtered tasks, search, and new task input.
 
 import SwiftUI
@@ -76,7 +76,7 @@ struct TaskListView: View {
                                     Divider()
                                     
                                     Button {
-                                        withAnimation(TidoDesign.Animation.quick) {
+                                        withAnimation(NoteOSDesign.Animation.quick) {
                                             workspaceToRename = ws
                                             workspaceNameInput = ws
                                             showingRenameAlert = true
@@ -106,7 +106,7 @@ struct TaskListView: View {
                         // Limit to max 10 workspaces total to prevent the dropdown from overflowing the screen
                         if store.getAvailableWorkspaces(allTasks).count < 10 {
                             Button {
-                                withAnimation(TidoDesign.Animation.quick) {
+                                withAnimation(NoteOSDesign.Animation.quick) {
                                     workspaceNameInput = ""
                                     showingNewWorkspaceAlert = true
                                 }
@@ -124,12 +124,12 @@ struct TaskListView: View {
                                 .minimumScaleFactor(0.8)
                                 .truncationMode(.tail)
                         }
-                        .foregroundStyle(store.selectedWorkspace == nil ? TidoDesign.Color.textSecondary : TidoDesign.Color.accent)
+                        .foregroundStyle(store.selectedWorkspace == nil ? NoteOSDesign.Color.textSecondary : NoteOSDesign.Color.accent)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(
-                            (store.selectedWorkspace == nil ? Color.clear : TidoDesign.Color.accent.opacity(0.1))
-                                .continuousRoundedCorners(TidoDesign.Radius.sm)
+                            (store.selectedWorkspace == nil ? Color.clear : NoteOSDesign.Color.accent.opacity(0.1))
+                                .continuousRoundedCorners(NoteOSDesign.Radius.sm)
                         )
                         .frame(minWidth: 55, maxWidth: 80) // Flexible width to fit up to 10 characters cleanly
                     }
@@ -153,20 +153,20 @@ struct TaskListView: View {
                             LaunchAtLoginService.shared.toggle()
                         }
                         Divider()
-                        Button("Quit Tido", role: .destructive) {
+                        Button("Quit noteOS", role: .destructive) {
                             NSApplication.shared.terminate(nil)
                         }
                     } label: {
                         Image(systemName: "gearshape")
-                            .foregroundStyle(TidoDesign.Color.textSecondary)
+                            .foregroundStyle(NoteOSDesign.Color.textSecondary)
                             .padding(.trailing, 2)
                     }
                     .menuStyle(.borderlessButton)
                     .menuIndicator(.hidden)
                     .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                .padding(.horizontal, TidoDesign.Spacing.md)
-                .padding(.vertical, TidoDesign.Spacing.sm)
+                .padding(.horizontal, NoteOSDesign.Spacing.md)
+                .padding(.vertical, NoteOSDesign.Spacing.sm)
 
                 Color.clear.frame(height: 1)
 
@@ -183,7 +183,7 @@ struct TaskListView: View {
                         }
                     } else {
                         ScrollView(.vertical, showsIndicators: false) {
-                            LazyVStack(spacing: TidoDesign.Spacing.xxs, pinnedViews: [.sectionHeaders]) {
+                            LazyVStack(spacing: NoteOSDesign.Spacing.xxs, pinnedViews: [.sectionHeaders]) {
                                 if store.selectedWorkspace == nil {
                                     // Grouped View
                                     let grouped = Dictionary(grouping: filteredTasks, by: { $0.workspace })
@@ -197,9 +197,9 @@ struct TaskListView: View {
                                         } header: {
                                             HStack {
                                                 Text(wsName.uppercased())
-                                                    .font(TidoDesign.Font.badge)
-                                                    .foregroundStyle(TidoDesign.Color.textSecondary)
-                                                    .padding(.horizontal, TidoDesign.Spacing.md)
+                                                    .font(NoteOSDesign.Font.badge)
+                                                    .foregroundStyle(NoteOSDesign.Color.textSecondary)
+                                                    .padding(.horizontal, NoteOSDesign.Spacing.md)
                                                     .padding(.vertical, 4)
                                                 Spacer()
                                             }
@@ -213,13 +213,13 @@ struct TaskListView: View {
                                     }
                                 }
                             }
-                            .padding(.vertical, TidoDesign.Spacing.sm)
+                            .padding(.vertical, NoteOSDesign.Spacing.sm)
                         }
                         .transition(.opacity)
                     }
                 }
-                .animation(TidoDesign.Animation.spring, value: store.activeFilter)
-                .frame(maxWidth: .infinity, maxHeight: TidoDesign.Size.popoverMaxHeight)
+                .animation(NoteOSDesign.Animation.spring, value: store.activeFilter)
+                .frame(maxWidth: .infinity, maxHeight: NoteOSDesign.Size.popoverMaxHeight)
 
                 Color.clear.frame(height: 1)
 
@@ -232,7 +232,7 @@ struct TaskListView: View {
                                 store.addTask(title: title)
                             },
                             onCancel: {
-                                withAnimation(TidoDesign.Animation.spring) {
+                                withAnimation(NoteOSDesign.Animation.spring) {
                                     showingAddInput = false
                                 }
                             }
@@ -242,7 +242,7 @@ struct TaskListView: View {
                         SearchTaskField(
                             text: $store.searchText,
                             onCancel: {
-                                withAnimation(TidoDesign.Animation.spring) {
+                                withAnimation(NoteOSDesign.Animation.spring) {
                                     showingSearchInput = false
                                 }
                             }
@@ -251,7 +251,7 @@ struct TaskListView: View {
                     } else {
                         HStack {
                             Button {
-                                withAnimation(TidoDesign.Animation.spring) {
+                                withAnimation(NoteOSDesign.Animation.spring) {
                                     showingAddInput = true
                                 }
                             } label: {
@@ -259,30 +259,30 @@ struct TaskListView: View {
                                     Image(systemName: "plus")
                                         .font(.system(size: 11, weight: .semibold))
                                     Text("New Task")
-                                        .font(TidoDesign.Font.taskTitle.weight(.medium))
+                                        .font(NoteOSDesign.Font.taskTitle.weight(.medium))
                                     Text("⌘N")
-                                        .font(TidoDesign.Font.caption)
-                                        .foregroundStyle(TidoDesign.Color.textTertiary)
+                                        .font(NoteOSDesign.Font.caption)
+                                        .foregroundStyle(NoteOSDesign.Color.textTertiary)
                                         .padding(.leading, 2)
                                     Spacer()
                                 }
-                                .foregroundStyle(TidoDesign.Color.textSecondary)
-                                .padding(.vertical, TidoDesign.Spacing.sm * 0.8)
-                                .padding(.horizontal, TidoDesign.Spacing.sm)
+                                .foregroundStyle(NoteOSDesign.Color.textSecondary)
+                                .padding(.vertical, NoteOSDesign.Spacing.sm * 0.8)
+                                .padding(.horizontal, NoteOSDesign.Spacing.sm)
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .keyboardShortcut("n", modifiers: .command)
 
                             Button {
-                                withAnimation(TidoDesign.Animation.spring) {
+                                withAnimation(NoteOSDesign.Animation.spring) {
                                     showingSearchInput = true
                                 }
                             } label: {
                                 Image(systemName: "magnifyingglass")
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundStyle(TidoDesign.Color.textSecondary)
-                                    .padding(.horizontal, TidoDesign.Spacing.sm)
+                                    .foregroundStyle(NoteOSDesign.Color.textSecondary)
+                                    .padding(.horizontal, NoteOSDesign.Spacing.sm)
                                     .padding(.vertical, 8)
                                     .contentShape(Rectangle())
                             }
@@ -290,13 +290,13 @@ struct TaskListView: View {
                         }
                     }
                 }
-                .padding(TidoDesign.Spacing.sm)
+                .padding(NoteOSDesign.Spacing.sm)
             }
             .contentShape(Rectangle())
             .onTapGesture {
                 // Global tap to dismiss inputs and focus
                 if showingAddInput || showingSearchInput {
-                    withAnimation(TidoDesign.Animation.spring) {
+                    withAnimation(NoteOSDesign.Animation.spring) {
                         showingAddInput = false
                         showingSearchInput = false
                     }
@@ -310,26 +310,26 @@ struct TaskListView: View {
                     .edgesIgnoringSafeArea(.all)
                     .onTapGesture { closeAlerts() }
                 
-                VStack(spacing: TidoDesign.Spacing.md) {
+                VStack(spacing: NoteOSDesign.Spacing.md) {
                     Text(showingRenameAlert ? "Rename Workspace" : "New Workspace")
-                        .font(TidoDesign.Font.taskTitle.weight(.semibold))
-                        .foregroundStyle(TidoDesign.Color.textPrimary)
+                        .font(NoteOSDesign.Font.taskTitle.weight(.semibold))
+                        .foregroundStyle(NoteOSDesign.Color.textPrimary)
                     
                     TextField("Workspace Name", text: $workspaceNameInput)
                         .textFieldStyle(.plain)
-                        .font(TidoDesign.Font.input)
+                        .font(NoteOSDesign.Font.input)
                         .padding(8)
-                        .background(TidoDesign.Color.rowHover.opacity(0.5).continuousRoundedCorners(TidoDesign.Radius.sm))
-                        .overlay(RoundedRectangle(cornerRadius: TidoDesign.Radius.sm).strokeBorder(TidoDesign.Color.separator, lineWidth: 1))
+                        .background(NoteOSDesign.Color.rowHover.opacity(0.5).continuousRoundedCorners(NoteOSDesign.Radius.sm))
+                        .overlay(RoundedRectangle(cornerRadius: NoteOSDesign.Radius.sm).strokeBorder(NoteOSDesign.Color.separator, lineWidth: 1))
                         .onSubmit { submitAlert() }
                     
-                    HStack(spacing: TidoDesign.Spacing.md) {
+                    HStack(spacing: NoteOSDesign.Spacing.md) {
                         Button("Cancel") {
                             closeAlerts()
                         }
                         .keyboardShortcut(.escape, modifiers: [])
                         .buttonStyle(.plain)
-                        .foregroundStyle(TidoDesign.Color.textSecondary)
+                        .foregroundStyle(NoteOSDesign.Color.textSecondary)
                         
                         Spacer()
                         
@@ -340,12 +340,12 @@ struct TaskListView: View {
                         .buttonStyle(.plain)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
-                        .background(TidoDesign.Color.accent.continuousRoundedCorners(TidoDesign.Radius.sm))
+                        .background(NoteOSDesign.Color.accent.continuousRoundedCorners(NoteOSDesign.Radius.sm))
                         .foregroundStyle(.white)
                     }
                 }
-                .padding(TidoDesign.Spacing.lg)
-                .background(Material.regular, in: RoundedRectangle(cornerRadius: TidoDesign.Radius.lg, style: .continuous))
+                .padding(NoteOSDesign.Spacing.lg)
+                .background(Material.regular, in: RoundedRectangle(cornerRadius: NoteOSDesign.Radius.lg, style: .continuous))
                 .shadow(color: Color.black.opacity(0.15), radius: 10, y: 4)
                 .frame(width: 260)
                 .transition(.scale(scale: 0.95).combined(with: .opacity))
@@ -371,7 +371,7 @@ struct TaskListView: View {
     // MARK: - Custom Alert Helpers
 
     private func closeAlerts() {
-        withAnimation(TidoDesign.Animation.quick) {
+        withAnimation(NoteOSDesign.Animation.quick) {
             showingRenameAlert = false
             showingNewWorkspaceAlert = false
         }

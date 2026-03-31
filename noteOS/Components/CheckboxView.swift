@@ -1,5 +1,5 @@
 // CheckboxView.swift
-// Tido — Components
+// noteOS — Components
 // Animated checkbox that provides satisfying visual feedback when toggling completion.
 // Two sizes: task-level and subtask-level.
 
@@ -10,8 +10,8 @@ enum CheckboxSize {
 
     var diameter: CGFloat {
         switch self {
-        case .task:    return TidoDesign.Size.checkboxSize
-        case .subtask: return TidoDesign.Size.subtaskCheckbox
+        case .task:    return NoteOSDesign.Size.checkboxSize
+        case .subtask: return NoteOSDesign.Size.subtaskCheckbox
         }
     }
 
@@ -56,16 +56,16 @@ struct CheckboxView: View {
                 // Background circle / ring
                 Circle()
                     .strokeBorder(
-                        isCompleted ? TidoDesign.Color.success : TidoDesign.Color.textTertiary.opacity(0.5),
+                        isCompleted ? NoteOSDesign.Color.success : NoteOSDesign.Color.textTertiary.opacity(0.5),
                         lineWidth: size.strokeWidth
                     )
                     .background(
                         Circle()
-                            .fill(isCompleted ? TidoDesign.Color.success : Color.clear)
+                            .fill(isCompleted ? NoteOSDesign.Color.success : Color.clear)
                             .scaleEffect(isCompleted ? 1.0 : 0.001)
                     )
                     .frame(width: size.diameter, height: size.diameter)
-                    .animation(TidoDesign.Animation.spring, value: isCompleted)
+                    .animation(NoteOSDesign.Animation.spring, value: isCompleted)
 
                 // Checkmark
                 if isCompleted {

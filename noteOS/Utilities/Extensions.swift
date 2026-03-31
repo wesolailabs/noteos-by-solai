@@ -1,5 +1,5 @@
 // Extensions.swift
-// Tido — Utilities
+// noteOS — Utilities
 // Handy SwiftUI and Foundation extensions used across the app.
 
 import SwiftUI
@@ -16,17 +16,17 @@ extension View {
     }
 
     /// Standard row hover effect used throughout the task list.
-    func tidoRowBackground(isHovered: Bool, cornerRadius: CGFloat = TidoDesign.Radius.md) -> some View {
+    func noteOSRowBackground(isHovered: Bool, cornerRadius: CGFloat = NoteOSDesign.Radius.md) -> some View {
         self.background(
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(isHovered ? TidoDesign.Color.rowHover : Color.clear)
-                .padding(.horizontal, TidoDesign.Spacing.xs)
-                .animation(TidoDesign.Animation.quick, value: isHovered)
+                .fill(isHovered ? NoteOSDesign.Color.rowHover : Color.clear)
+                .padding(.horizontal, NoteOSDesign.Spacing.xs)
+                .animation(NoteOSDesign.Animation.quick, value: isHovered)
         )
     }
 
     /// Clips content with a continuous rounded rectangle.
-    func continuousRoundedCorners(_ radius: CGFloat = TidoDesign.Radius.md) -> some View {
+    func continuousRoundedCorners(_ radius: CGFloat = NoteOSDesign.Radius.md) -> some View {
         self.clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
     }
 }

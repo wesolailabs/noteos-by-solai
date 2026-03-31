@@ -1,5 +1,5 @@
 // SearchTaskField.swift
-// Tido — Components
+// noteOS — Components
 // Inline input field for searching tasks in the footer.
 // Binds directly to the TaskStore search text.
 
@@ -17,15 +17,15 @@ struct SearchTaskField: View {
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: TidoDesign.Spacing.sm) {
+        HStack(spacing: NoteOSDesign.Spacing.sm) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(TidoDesign.Color.accent.opacity(0.8))
-                .frame(width: TidoDesign.Size.checkboxSize)
+                .foregroundStyle(NoteOSDesign.Color.accent.opacity(0.8))
+                .frame(width: NoteOSDesign.Size.checkboxSize)
 
             TextField("Search tasks…", text: $text)
-                .font(TidoDesign.Font.input)
-                .foregroundStyle(TidoDesign.Color.textPrimary)
+                .font(NoteOSDesign.Font.input)
+                .foregroundStyle(NoteOSDesign.Color.textPrimary)
                 .textFieldStyle(.plain)
                 .focused($isFocused)
                 .onKeyPress(.escape) {
@@ -38,29 +38,29 @@ struct SearchTaskField: View {
                     cancel()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(TidoDesign.Color.textTertiary)
+                        .foregroundStyle(NoteOSDesign.Color.textTertiary)
                 }
                 .buttonStyle(.plain)
                 .transition(.opacity.combined(with: .scale(scale: 0.8)))
             }
         }
-        .padding(.horizontal, TidoDesign.Spacing.md)
-        .frame(minHeight: TidoDesign.Size.rowMinHeight)
+        .padding(.horizontal, NoteOSDesign.Spacing.md)
+        .frame(minHeight: NoteOSDesign.Size.rowMinHeight)
         .background(
-            RoundedRectangle(cornerRadius: TidoDesign.Radius.md, style: .continuous)
-                .fill(TidoDesign.Color.accent.opacity(0.05))
+            RoundedRectangle(cornerRadius: NoteOSDesign.Radius.md, style: .continuous)
+                .fill(NoteOSDesign.Color.accent.opacity(0.05))
                 .overlay(
-                    RoundedRectangle(cornerRadius: TidoDesign.Radius.md, style: .continuous)
+                    RoundedRectangle(cornerRadius: NoteOSDesign.Radius.md, style: .continuous)
                         .strokeBorder(
                             isFocused
-                                ? TidoDesign.Color.accent.opacity(0.35)
-                                : TidoDesign.Color.separator,
+                                ? NoteOSDesign.Color.accent.opacity(0.35)
+                                : NoteOSDesign.Color.separator,
                             lineWidth: 1
                         )
                 )
         )
-        .animation(TidoDesign.Animation.quick, value: text)
-        .animation(TidoDesign.Animation.quick, value: isFocused)
+        .animation(NoteOSDesign.Animation.quick, value: text)
+        .animation(NoteOSDesign.Animation.quick, value: isFocused)
         .onChange(of: isFocused) { _, focused in
             if !focused && text.isEmpty {
                 cancel()
