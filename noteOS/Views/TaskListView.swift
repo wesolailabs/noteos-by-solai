@@ -21,6 +21,7 @@ struct TaskListView: View {
     @State private var showingNewWorkspaceAlert: Bool = false
     @State private var workspaceNameInput: String = ""
     @State private var workspaceToRename: String = ""
+    @AppStorage("isPinned") private var isPinned: Bool = false
 
     // MARK: - Init
 
@@ -149,6 +150,17 @@ struct TaskListView: View {
 
                     // Settings Menu (Right Section)
                     Menu {
+                        Button {
+                            isPinned.toggle()
+                        } label: {
+                            HStack {
+                                Text("Keep Window Open")
+                                if isPinned {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                        
                         Button(LaunchAtLoginService.shared.isEnabled ? "Disable Launch at Login" : "Launch at Login") {
                             LaunchAtLoginService.shared.toggle()
                         }
@@ -360,11 +372,18 @@ struct TaskListView: View {
                 workspaceNameInput = String(newValue.prefix(10))
             }
         }
+        .onChange(of: isPinned) { _, newValue in
+            updateWindowBehavior(pinned: newValue)
+        }
         .onAppear {
-            if let window = NSApplication.shared.windows.first(where: { $0.isKeyWindow || $0.isVisible }) {
-                window.hidesOnDeactivate = false
-                window.level = .popUpMenu
-            }
+            updateWindowBehavior(pinned: isPinned)
+        }
+    }
+
+    private func updateWindowBehavior(pinned: Bool) {
+        if let window = NSApplication.shared.windows.first(where: { $0.isKeyWindow || $0.isVisible }) {
+            window.hidesOnDeactivate = !pinned
+            window.level = pinned ? .floating : .popUpMenu
         }
     }
 
