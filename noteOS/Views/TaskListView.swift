@@ -223,7 +223,7 @@ struct TaskListView: View {
                 Color.clear.frame(height: 1)
 
                 // Bottom Add Action
-                VStack {
+                ZStack {
                     if showingAddInput {
                         AddTaskField(
                             placeholder: "New task…",
@@ -287,6 +287,7 @@ struct TaskListView: View {
                             }
                             .buttonStyle(.plain)
                         }
+                        .transition(.opacity)
                     }
                 }
                 .padding(NoteOSDesign.Spacing.sm)
