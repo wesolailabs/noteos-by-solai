@@ -36,49 +36,48 @@ struct FilterTabBar: View {
     private func filterButton(_ filter: TaskFilter) -> some View {
         let isSelected = selection == filter
 
-        Button {
+        HStack(spacing: 3) {
+            Image(systemName: filter.systemImage)
+                .font(.system(size: 10, weight: .semibold))
+
+            Text(filter.rawValue)
+                .font(TidoDesign.Font.header)
+
+            // Count badge
+            if let count = badgeCount(for: filter), count > 0 {
+                Text("\(count)")
+                    .font(TidoDesign.Font.badge)
+                    .foregroundStyle(isSelected ? TidoDesign.Color.accent : TidoDesign.Color.textTertiary)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 0.5)
+                    .background(
+                        Capsule()
+                            .fill(isSelected
+                                  ? TidoDesign.Color.accent.opacity(0.15)
+                                  : Color.primary.opacity(0.07))
+                    )
+            }
+        }
+        .foregroundStyle(isSelected ? TidoDesign.Color.accent : TidoDesign.Color.textSecondary)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
+        .onTapGesture {
             withAnimation(TidoDesign.Animation.spring) {
                 selection = filter
             }
-        } label: {
-            HStack(spacing: 3) {
-                Image(systemName: filter.systemImage)
-                    .font(.system(size: 10, weight: .semibold))
-
-                Text(filter.rawValue)
-                    .font(TidoDesign.Font.header)
-
-                // Count badge
-                if let count = badgeCount(for: filter), count > 0 {
-                    Text("\(count)")
-                        .font(TidoDesign.Font.badge)
-                        .foregroundStyle(isSelected ? TidoDesign.Color.accent : TidoDesign.Color.textTertiary)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 0.5)
-                        .background(
-                            Capsule()
-                                .fill(isSelected
-                                      ? TidoDesign.Color.accent.opacity(0.15)
-                                      : Color.primary.opacity(0.07))
-                        )
+        }
+        .matchedGeometryEffect(id: filter.id, in: tabNamespace, isSource: true)
+        .background(
+            Group {
+                if isSelected {
+                    RoundedRectangle(cornerRadius: TidoDesign.Radius.sm, style: .continuous)
+                        .fill(.background)
+                        .matchedGeometryEffect(id: "tab_pill", in: tabNamespace, isSource: false)
+                        .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 1)
                 }
             }
-            .foregroundStyle(isSelected ? TidoDesign.Color.accent : TidoDesign.Color.textSecondary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .matchedGeometryEffect(id: filter.id, in: tabNamespace, isSource: true)
-            .background(
-                Group {
-                    if isSelected {
-                        RoundedRectangle(cornerRadius: TidoDesign.Radius.sm, style: .continuous)
-                            .fill(.background)
-                            .matchedGeometryEffect(id: "tab_pill", in: tabNamespace, isSource: false)
-                            .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 1)
-                    }
-                }
-            )
-        }
-        .buttonStyle(.plain)
+        )
     }
 
     // MARK: - Helpers
