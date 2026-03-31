@@ -5,6 +5,7 @@
 import SwiftUI
 import SwiftData
 import AppKit
+import Foundation
 
 @main
 struct NoteOSApp: App {
@@ -12,70 +13,7 @@ struct NoteOSApp: App {
 
     // MARK: - SwiftData container
 
-    private let modelContainer: ModelContainer = {
-        let schema = Schema([TaskItem.self, SubTaskItem.self])
-
-        // 1. Define explicit URLs for migration and storage
-        let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let oldStorageURL = appSupportURL.appendingPathComponent("TidoStore.sqlite")
-        let storageURL = appSupportURL.appendingPathComponent("NoteOSStore.sqlite")
-        
-        // Data Migration logic: Move old Tido storage to new NoteOS storage if it exists
-        let fileManager = FileManager.default
-        if fileManager.fileExists(atPath: oldStorageURL.path) && !fileManager.fileExists(atPath: storageURL.path) {
-            let filesToMove = [
-                (old: oldStorageURL, new: storageURL),
-                (old: oldStorageURL.appendingPathExtension("shm"), new: storageURL.appendingPathExtension("shm")),
-                (old: oldStorageURL.appendingPathExtension("wal"), new: storageURL.appendingPathExtension("wal"))
-            ]
-            for pair in filesToMove {
-                try? fileManager.moveItem(at: pair.old, to: pair.new)
-            }
-        }
-
-        let config = ModelConfiguration(url: storageURL)
-
-        func clearStorage() {
-            // Delete the explicit Store
-            let storeFiles = [
-                storageURL,
-                storageURL.appendingPathExtension("shm"),
-                storageURL.appendingPathExtension("wal"),
-                oldStorageURL,
-                oldStorageURL.appendingPathExtension("shm"),
-                oldStorageURL.appendingPathExtension("wal")
-            ]
-            for url in storeFiles {
-                try? fileManager.removeItem(at: url)
-            }
-
-            // Also search for the default SwiftData location just in case
-            let bundleID = Bundle.main.bundleIdentifier ?? "noteOS"
-            let defaultFolder = appSupportURL.appendingPathComponent(bundleID)
-            let defaultFiles = ["default.store", "default.store-shm", "default.store-wal"]
-            for file in defaultFiles {
-                try? fileManager.removeItem(at: defaultFolder.appendingPathComponent(file))
-                try? fileManager.removeItem(at: defaultFolder.appendingPathComponent("SwiftData").appendingPathComponent(file))
-            }
-        }
-
-        do {
-            return try ModelContainer(for: schema, configurations: [config])
-        } catch {
-            print("noteOS: Storage initialization failed. Wiping data for fresh start...")
-            clearStorage()
-
-            do {
-                // Secondary attempt with a fresh, empty store
-                return try ModelContainer(for: schema, configurations: [config])
-            } catch {
-                // Last ditch effort: Try in-memory if disk is truly broken
-                print("noteOS: Disk storage is unusable. Falling back to in-memory.")
-                let memConfig = ModelConfiguration(isStoredInMemoryOnly: true)
-                return try! ModelContainer(for: schema, configurations: [memConfig])
-            }
-        }
-    }();
+    private let modelContainer: ModelContainer = Self.makeModelContainer()
 
     // MARK: - Body
 
@@ -91,6 +29,99 @@ struct NoteOSApp: App {
             MenuBarLabel()
         }
         .menuBarExtraStyle(.window)
+    }
+}
+
+// MARK: - Storage Bootstrap
+
+private extension NoteOSApp {
+    static func makeModelContainer() -> ModelContainer {
+        let schema = Schema([TaskItem.self, SubTaskItem.self])
+        let fileManager = FileManager.default
+
+        let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        try? fileManager.createDirectory(at: appSupportURL, withIntermediateDirectories: true)
+
+        let legacyStorageURL = appSupportURL.appendingPathComponent("TidoStore.sqlite")
+        let storageURL = appSupportURL.appendingPathComponent("NoteOSStore.sqlite")
+
+        migrateLegacyStoreIfNeeded(from: legacyStorageURL, to: storageURL, fileManager: fileManager)
+
+        do {
+            return try openContainer(schema: schema, storageURL: storageURL)
+        } catch {
+            print("noteOS: Could not open persistent store at \(storageURL.path): \(error.localizedDescription)")
+        }
+
+        quarantineBrokenStore(at: storageURL, fileManager: fileManager)
+
+        do {
+            print("noteOS: Retrying with a fresh persistent store.")
+            return try openContainer(schema: schema, storageURL: storageURL)
+        } catch {
+            print("noteOS: Fresh persistent store also failed: \(error.localizedDescription)")
+        }
+
+        do {
+            print("noteOS: Falling back to in-memory storage for this run.")
+            let memoryConfig = ModelConfiguration(isStoredInMemoryOnly: true)
+            return try ModelContainer(for: schema, configurations: [memoryConfig])
+        } catch {
+            fatalError("noteOS: Unable to initialize any ModelContainer. \(error.localizedDescription)")
+        }
+    }
+
+    static func openContainer(schema: Schema, storageURL: URL) throws -> ModelContainer {
+        let config = ModelConfiguration(url: storageURL)
+        return try ModelContainer(for: schema, configurations: [config])
+    }
+
+    static func migrateLegacyStoreIfNeeded(from oldURL: URL, to newURL: URL, fileManager: FileManager) {
+        guard fileManager.fileExists(atPath: oldURL.path), !fileManager.fileExists(atPath: newURL.path) else { return }
+
+        let filesToMove = [
+            (old: oldURL, new: newURL),
+            (old: oldURL.appendingPathExtension("shm"), new: newURL.appendingPathExtension("shm")),
+            (old: oldURL.appendingPathExtension("wal"), new: newURL.appendingPathExtension("wal"))
+        ]
+
+        for pair in filesToMove where fileManager.fileExists(atPath: pair.old.path) {
+            do {
+                try fileManager.moveItem(at: pair.old, to: pair.new)
+            } catch {
+                print("noteOS: Legacy store migration warning (\(pair.old.lastPathComponent)): \(error.localizedDescription)")
+            }
+        }
+    }
+
+    static func quarantineBrokenStore(at storageURL: URL, fileManager: FileManager) {
+        let relatedFiles = [
+            storageURL,
+            storageURL.appendingPathExtension("shm"),
+            storageURL.appendingPathExtension("wal")
+        ]
+
+        guard relatedFiles.contains(where: { fileManager.fileExists(atPath: $0.path) }) else { return }
+
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
+        let timestamp = formatter.string(from: Date()).replacingOccurrences(of: ":", with: "-")
+
+        let quarantineRoot = storageURL.deletingLastPathComponent().appendingPathComponent("CorruptedStores", isDirectory: true)
+        let quarantineFolder = quarantineRoot.appendingPathComponent("NoteOSStore-\(timestamp)", isDirectory: true)
+
+        do {
+            try fileManager.createDirectory(at: quarantineFolder, withIntermediateDirectories: true)
+
+            for file in relatedFiles where fileManager.fileExists(atPath: file.path) {
+                let destination = quarantineFolder.appendingPathComponent(file.lastPathComponent)
+                try fileManager.moveItem(at: file, to: destination)
+            }
+
+            print("noteOS: Moved broken store files to \(quarantineFolder.path)")
+        } catch {
+            print("noteOS: Could not quarantine broken store files: \(error.localizedDescription)")
+        }
     }
 }
 

@@ -7,3 +7,5 @@ xcuserdata/
 *.pbxuser
 .swiftpm/
 .build/
+.env
+.env.*

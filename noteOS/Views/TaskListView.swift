@@ -19,8 +19,10 @@ struct TaskListView: View {
     @State private var showingSearchInput: Bool = false
     @State private var showingRenameAlert: Bool = false
     @State private var showingNewWorkspaceAlert: Bool = false
+    @State private var showingDeleteWorkspaceAlert: Bool = false
     @State private var workspaceNameInput: String = ""
     @State private var workspaceToRename: String = ""
+    @State private var workspaceToDelete: String = ""
     @AppStorage("isPinned") private var isPinned: Bool = false
 
     // MARK: - Init
@@ -89,7 +91,8 @@ struct TaskListView: View {
                                     }
 
                                     Button(role: .destructive) {
-                                        store.deleteWorkspace(ws)
+                                        workspaceToDelete = ws
+                                        showingDeleteWorkspaceAlert = true
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
@@ -420,6 +423,20 @@ struct TaskListView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
             LaunchAtLoginService.shared.refreshState()
         }
+        .alert("Delete workspace?", isPresented: $showingDeleteWorkspaceAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                store.deleteWorkspace(workspaceToDelete)
+                workspaceToDelete = ""
+            }
+        } message: {
+            let affectedTasks = allTasks.filter { $0.workspace == workspaceToDelete }.count
+            Text(
+                affectedTasks > 0
+                ? "\"\(workspaceToDelete)\" and its \(affectedTasks) task(s) will be permanently deleted."
+                : "\"\(workspaceToDelete)\" will be deleted."
+            )
+        }
         .onChange(of: workspaceNameInput) { _, newValue in
             if newValue.count > 10 {
                 workspaceNameInput = String(newValue.prefix(10))
@@ -434,7 +451,13 @@ struct TaskListView: View {
     }
 
     private func updateWindowBehavior(pinned: Bool) {
-        if let window = NSApplication.shared.windows.first(where: { $0.isKeyWindow || $0.isVisible }) {
+        let menuWindowIdentifier = NSUserInterfaceItemIdentifier("wesolai.noteos.menubar.window")
+        let window =
+            NSApplication.shared.windows.first(where: { $0.identifier == menuWindowIdentifier }) ??
+            NSApplication.shared.keyWindow ??
+            NSApplication.shared.windows.first(where: { $0.isVisible })
+
+        if let window {
             window.hidesOnDeactivate = !pinned
             window.level = pinned ? .floating : .popUpMenu
         }

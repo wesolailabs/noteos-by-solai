@@ -19,11 +19,21 @@ struct MenuBarView: View {
         }
         .frame(width: NoteOSDesign.Size.popoverWidth)
         .frame(minHeight: 200, maxHeight: NoteOSDesign.Size.popoverMaxHeight)
-        // ultraThin gives that high-end glassy translucency
-        .background(Material.ultraThin)
-        // Window styling hack using introspect
+        // Deep glass: hudWindow samples everything behind the window for true premium blur
+        .background(VisualEffectView(material: .hudWindow, blendingMode: .behindWindow))
+        // Premium inner border to define the glass edge
+        .overlay(
+            RoundedRectangle(cornerRadius: NoteOSDesign.Radius.xl + 2, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [.white.opacity(0.16), .white.opacity(0.04)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.8
+                )
+        )
         .task {
-            // Wait a tick for the window to be available before setting it up
             try? await Task.sleep(for: .milliseconds(50))
             await MainActor.run {
                 setupWindow()
@@ -47,15 +57,37 @@ struct MenuBarView: View {
         window.backgroundColor = .clear
         window.hasShadow = true
 
-        // Optionally set corner radius on the content view
+        // Premium corner radius on the content view
         window.contentView?.wantsLayer = true
-        window.contentView?.layer?.cornerRadius = NoteOSDesign.Radius.xl
+        window.contentView?.layer?.cornerRadius = NoteOSDesign.Radius.xl + 2
         window.contentView?.layer?.masksToBounds = true
 
         // Always keep noteOS popover above other windows
+        window.identifier = NSUserInterfaceItemIdentifier("wesolai.noteos.menubar.window")
         window.level = .floating
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
 
         // Pinning behavior is managed by the onChange observer in TaskListView now.
+    }
+}
+
+// MARK: - Native Glass Effect
+
+/// Represents an exact NSVisualEffectView wrapped for SwiftUI, guaranteeing deep macOS blurring
+struct VisualEffectView: NSViewRepresentable {
+    var material: NSVisualEffectView.Material
+    var blendingMode: NSVisualEffectView.BlendingMode
+
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = material
+        view.blendingMode = blendingMode
+        view.state = .active
+        return view
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+        nsView.material = material
+        nsView.blendingMode = blendingMode
     }
 }
