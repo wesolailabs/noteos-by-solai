@@ -140,7 +140,7 @@ struct TaskListView: View {
                     .buttonStyle(.plain)
                     .menuIndicator(.hidden)
                     .help("Switch Workspace")
-                    .frame(width: headerSideSlotWidth, alignment: .leading)
+                    .frame(width: headerSideSlotWidth, alignment: .center)
 
                     // CENTER — Filter Tabs
                     let pending = allTasks.filter { !$0.isCompleted }.count
@@ -179,9 +179,9 @@ struct TaskListView: View {
                     }
                     .menuStyle(.borderlessButton)
                     .menuIndicator(.hidden)
-                    .frame(width: headerSideSlotWidth, alignment: .trailing)
+                    .frame(width: headerSideSlotWidth, alignment: .center)
                 }
-                .padding(.horizontal, NoteOSDesign.Spacing.sm)
+                .padding(.horizontal, NoteOSDesign.Spacing.md)
                 .padding(.vertical, NoteOSDesign.Spacing.sm)
 
                 // Content Separator with subtle gradient
@@ -235,6 +235,7 @@ struct TaskListView: View {
                                     }
                                 }
                             }
+                            .padding(.horizontal, NoteOSDesign.Spacing.xs)
                             .padding(.vertical, NoteOSDesign.Spacing.sm)
                         }
                         .transition(.opacity)
@@ -251,7 +252,11 @@ struct TaskListView: View {
                         AddTaskField(
                             placeholder: "New task…",
                             onSubmit: { title in
-                                store.addTask(title: title)
+                                if store.addTask(title: title) != nil {
+                                    withAnimation(NoteOSDesign.Animation.spring) {
+                                        showingAddInput = false
+                                    }
+                                }
                             },
                             onCancel: {
                                 withAnimation(NoteOSDesign.Animation.spring) {
