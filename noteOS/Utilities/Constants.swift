@@ -98,7 +98,7 @@ enum NoteOSDesign {
         static let subtaskCheckbox: CGFloat  = 15
         static let rowMinHeight: CGFloat     = 36
         static let subtaskMinHeight: CGFloat = 30
-        static let popoverWidth: CGFloat     = 380
+        static let popoverWidth: CGFloat     = 400
         static let popoverMaxHeight: CGFloat = 520
         static let toolbarHeight: CGFloat    = 48
     }

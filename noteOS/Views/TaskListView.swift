@@ -235,7 +235,7 @@ struct TaskListView: View {
                                     }
                                 }
                             }
-                            .padding(.horizontal, NoteOSDesign.Spacing.xs)
+                            .padding(.horizontal, NoteOSDesign.Spacing.sm)
                             .padding(.vertical, NoteOSDesign.Spacing.sm)
                         }
                         .transition(.opacity)
@@ -279,6 +279,7 @@ struct TaskListView: View {
                         HStack(spacing: 0) {
                             Button {
                                 withAnimation(NoteOSDesign.Animation.spring) {
+                                    showingSearchInput = false
                                     showingAddInput = true
                                 }
                             } label: {
@@ -306,6 +307,7 @@ struct TaskListView: View {
 
                             Button {
                                 withAnimation(NoteOSDesign.Animation.spring) {
+                                    showingAddInput = false
                                     showingSearchInput = true
                                 }
                             } label: {
@@ -322,7 +324,7 @@ struct TaskListView: View {
                         .transition(.opacity)
                     }
                 }
-                .padding(.horizontal, NoteOSDesign.Spacing.md)
+                .padding(.horizontal, NoteOSDesign.Spacing.lg)
                 .padding(.top, NoteOSDesign.Spacing.xs)
                 .padding(.bottom, NoteOSDesign.Spacing.sm + 2)
             }
