@@ -159,11 +159,11 @@ struct TaskListView: View {
                     } label: {
                         Image(systemName: "gearshape")
                             .foregroundStyle(NoteOSDesign.Color.textSecondary)
-                            .padding(.trailing, 2)
                     }
                     .menuStyle(.borderlessButton)
                     .menuIndicator(.hidden)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading, NoteOSDesign.Spacing.sm)
                 }
                 .padding(.horizontal, NoteOSDesign.Spacing.md)
                 .padding(.vertical, NoteOSDesign.Spacing.sm)
