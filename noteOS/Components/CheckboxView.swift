@@ -41,64 +41,79 @@ struct CheckboxView: View {
     // MARK: - Local State
 
     @State private var isPressed: Bool = false
+    @State private var visualCompleted: Bool = false
 
     // MARK: - Body
 
     var body: some View {
-        ZStack {
-            // Invisible larger hit area
-            Circle()
-                .fill(Color.white.opacity(0.001))
-                .frame(width: size.diameter + 8, height: size.diameter + 8)
-
-            // Visual Checkbox
+        Button(action: handleTap) {
             ZStack {
-                // Background circle / ring
+                // Invisible larger hit area
                 Circle()
-                    .strokeBorder(
-                        isCompleted ? NoteOSDesign.Color.success : NoteOSDesign.Color.textTertiary.opacity(0.5),
-                        lineWidth: size.strokeWidth
-                    )
-                    .background(
-                        Circle()
-                            .fill(isCompleted ? NoteOSDesign.Color.success : Color.clear)
-                            .scaleEffect(isCompleted ? 1.0 : 0.001)
-                    )
-                    .frame(width: size.diameter, height: size.diameter)
-                    .animation(NoteOSDesign.Animation.spring, value: isCompleted)
+                    .fill(Color.white.opacity(0.001))
+                    .frame(width: size.diameter + 8, height: size.diameter + 8)
 
-                // Checkmark
-                if isCompleted {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: size.diameter * size.checkmarkScale, weight: .bold))
-                        .foregroundStyle(.white)
-                        .transition(
-                            .asymmetric(
-                                insertion: .scale(scale: 0.1).combined(with: .opacity).animation(.spring(response: 0.35, dampingFraction: 0.4)),
-                                removal: .scale(scale: 0.1).combined(with: .opacity).animation(.easeIn(duration: 0.1))
-                            )
+                // Visual Checkbox
+                ZStack {
+                    // Background circle / ring
+                    Circle()
+                        .strokeBorder(
+                            visualCompleted ? NoteOSDesign.Color.success : NoteOSDesign.Color.textTertiary.opacity(0.5),
+                            lineWidth: size.strokeWidth
                         )
+                        .background(
+                            Circle()
+                                .fill(visualCompleted ? NoteOSDesign.Color.success : Color.clear)
+                                .scaleEffect(visualCompleted ? 1.0 : 0.001)
+                        )
+                        .frame(width: size.diameter, height: size.diameter)
+                        .animation(NoteOSDesign.Animation.spring, value: visualCompleted)
+
+                    // Checkmark
+                    if visualCompleted {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: size.diameter * size.checkmarkScale, weight: .bold))
+                            .foregroundStyle(.white)
+                            .transition(
+                                .asymmetric(
+                                    insertion: .scale(scale: 0.1).combined(with: .opacity).animation(.spring(response: 0.35, dampingFraction: 0.4)),
+                                    removal: .scale(scale: 0.1).combined(with: .opacity).animation(.easeIn(duration: 0.1))
+                                )
+                            )
+                    }
                 }
             }
         }
+        .buttonStyle(.plain)
         .contentShape(Circle())
-        .onTapGesture {
-            // Press animation
-            withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) { isPressed = true }
-            Task {
-                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-                await MainActor.run {
-                    withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) { isPressed = false }
-                }
-            }
-            onToggle()
-        }
-        .scaleEffect(isPressed ? 0.75 : (isCompleted ? 1.15 : 1.0))
-        .rotationEffect(.degrees(isPressed ? -15 : (isCompleted ? 0 : -5)))
-        .animation(.spring(response: 0.4, dampingFraction: 0.45), value: isCompleted)
+        .scaleEffect(isPressed ? 0.75 : (visualCompleted ? 1.15 : 1.0))
+        .rotationEffect(.degrees(isPressed ? -15 : (visualCompleted ? 0 : -5)))
+        .animation(.spring(response: 0.4, dampingFraction: 0.45), value: visualCompleted)
         .animation(.spring(response: 0.2, dampingFraction: 0.6), value: isPressed)
-        .accessibilityLabel(isCompleted ? "Mark as incomplete" : "Mark as complete")
+        .onAppear {
+            visualCompleted = isCompleted
+        }
+        .onChange(of: isCompleted) { _, newValue in
+            visualCompleted = newValue
+        }
+        .accessibilityLabel(visualCompleted ? "Mark as incomplete" : "Mark as complete")
         .accessibilityAddTraits(.isButton)
+    }
+
+    private func handleTap() {
+        // Immediate visual response, independent from persistence latency.
+        withAnimation(.spring(response: 0.25, dampingFraction: 0.62)) {
+            visualCompleted.toggle()
+            isPressed = true
+        }
+
+        Task {
+            try? await Task.sleep(nanoseconds: 80_000_000)
+            await MainActor.run {
+                withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) { isPressed = false }
+                onToggle()
+            }
+        }
     }
 }
 
