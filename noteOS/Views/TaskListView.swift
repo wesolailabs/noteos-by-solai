@@ -24,6 +24,7 @@ struct TaskListView: View {
     @State private var workspaceToRename: String = ""
     @State private var workspaceToDelete: String = ""
     @AppStorage("isPinned") private var isPinned: Bool = false
+    @State private var tasksBeingCompleted: Set<UUID> = []
 
     // MARK: - Init
 
@@ -34,6 +35,8 @@ struct TaskListView: View {
     // MARK: - Body
 
     var body: some View {
+        let isCompletelyEmpty = allTasks.isEmpty
+
         ZStack {
             VStack(spacing: 0) {
                 // Header Toolbar — fully symmetric: left/right slots balance the centered tabs
@@ -182,7 +185,7 @@ struct TaskListView: View {
                     .frame(width: headerSideSlotWidth, alignment: .center)
                 }
                 .padding(.horizontal, NoteOSDesign.Spacing.md)
-                .padding(.vertical, NoteOSDesign.Spacing.sm)
+                .frame(height: NoteOSDesign.Size.toolbarHeight)
 
                 // Content Separator with subtle gradient
                 LinearGradient(
@@ -212,9 +215,18 @@ struct TaskListView: View {
                                     let keys = grouped.keys.sorted()
 
                                     ForEach(keys, id: \.self) { wsName in
+                                        let wsTasks = (grouped[wsName] ?? []).filter { !tasksBeingCompleted.contains($0.id) }
                                         Section {
-                                            ForEach(grouped[wsName] ?? []) { task in
+                                            ForEach(wsTasks) { task in
                                                 TaskRowView(task: task, store: store)
+                                                    .onChange(of: task.isCompleted) { _, isCompleted in
+                                                        if isCompleted && store.activeFilter == .pending {
+                                                            tasksBeingCompleted.insert(task.id)
+                                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                                                                tasksBeingCompleted.remove(task.id)
+                                                            }
+                                                        }
+                                                    }
                                             }
                                         } header: {
                                             HStack {
@@ -230,8 +242,17 @@ struct TaskListView: View {
                                     }
                                 } else {
                                     // Single List View
-                                    ForEach(filteredTasks) { task in
+                                    let activeTasks = filteredTasks.filter { !tasksBeingCompleted.contains($0.id) }
+                                    ForEach(activeTasks) { task in
                                         TaskRowView(task: task, store: store)
+                                            .onChange(of: task.isCompleted) { _, isCompleted in
+                                                if isCompleted && store.activeFilter == .pending {
+                                                    tasksBeingCompleted.insert(task.id)
+                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                                                        tasksBeingCompleted.remove(task.id)
+                                                    }
+                                                }
+                                            }
                                     }
                                 }
                             }
@@ -276,7 +297,7 @@ struct TaskListView: View {
                         )
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                     } else {
-                        HStack(spacing: 0) {
+                        HStack(spacing: 12) {
                             Button {
                                 withAnimation(NoteOSDesign.Animation.spring) {
                                     showingSearchInput = false
@@ -292,7 +313,6 @@ struct TaskListView: View {
                                         .font(NoteOSDesign.Font.caption)
                                         .foregroundStyle(NoteOSDesign.Color.textTertiary)
                                         .padding(.leading, 2)
-                                    Spacer()
                                 }
                                 .foregroundStyle(NoteOSDesign.Color.textSecondary)
                                 .padding(.vertical, 8)
@@ -300,10 +320,9 @@ struct TaskListView: View {
                                 .background(Color.primary.opacity(0.03))
                                 .continuousRoundedCorners(NoteOSDesign.Radius.md)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .buttonStyle(.plain)
                             .keyboardShortcut("n", modifiers: .command)
-
-                            Spacer(minLength: 12)
 
                             Button {
                                 withAnimation(NoteOSDesign.Animation.spring) {
@@ -314,19 +333,19 @@ struct TaskListView: View {
                                 Image(systemName: "magnifyingglass")
                                     .font(.system(size: 13, weight: .medium))
                                     .foregroundStyle(NoteOSDesign.Color.textSecondary)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(Color.primary.opacity(0.03))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 7)
+                                    .background(Color.primary.opacity(0.04))
                                     .continuousRoundedCorners(NoteOSDesign.Radius.md)
                             }
                             .buttonStyle(.plain)
                         }
+                        .padding(.horizontal, NoteOSDesign.Spacing.md)
                         .transition(.opacity)
                     }
                 }
-                .padding(.horizontal, NoteOSDesign.Spacing.lg)
-                .padding(.top, NoteOSDesign.Spacing.xs)
-                .padding(.bottom, NoteOSDesign.Spacing.sm + 2)
+                .padding(.top, 4)
+                .padding(.bottom, NoteOSDesign.Spacing.sm)
             }
             .contentShape(Rectangle())
             .onTapGesture {
