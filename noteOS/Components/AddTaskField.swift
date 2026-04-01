@@ -50,7 +50,7 @@ struct AddTaskField: View {
                     .transition(.opacity.combined(with: .scale(scale: 0.8)))
             }
         }
-        .padding(.horizontal, NoteOSDesign.Spacing.md)
+        .padding(.horizontal, NoteOSDesign.Spacing.sm)
         .frame(
             minHeight: isSubtask
                 ? NoteOSDesign.Size.subtaskMinHeight

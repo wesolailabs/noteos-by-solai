@@ -18,10 +18,18 @@ extension View {
     /// Standard row hover effect used throughout the task list.
     func noteOSRowBackground(isHovered: Bool, cornerRadius: CGFloat = NoteOSDesign.Radius.md) -> some View {
         self.background(
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(isHovered ? NoteOSDesign.Color.rowHover : Color.clear)
-                .padding(.horizontal, NoteOSDesign.Spacing.xs)
-                .animation(NoteOSDesign.Animation.quick, value: isHovered)
+            ZStack {
+                if isHovered {
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .fill(NoteOSDesign.Color.rowHover)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                                .strokeBorder(Color.primary.opacity(0.04), lineWidth: 1)
+                        )
+                }
+            }
+            .padding(.horizontal, NoteOSDesign.Spacing.contentInset - 8)
+            .animation(NoteOSDesign.Animation.quick, value: isHovered)
         )
     }
 

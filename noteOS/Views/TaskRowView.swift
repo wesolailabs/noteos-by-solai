@@ -104,44 +104,54 @@ struct TaskRowView: View {
 
             if !task.subtasks.isEmpty {
                 Button {
-                    withAnimation { isExpanded.toggle() }
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) { isExpanded.toggle() }
                 } label: {
-                    HStack(spacing: 4) {
+                    HStack(spacing: 5) {
                         Image(systemName: "checklist")
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.system(size: 9.5, weight: .bold))
                         Text("\(task.completedSubtaskCount)/\(task.subtasks.count)")
                             .font(NoteOSDesign.Font.badge)
                     }
                     .foregroundStyle(
                         task.allSubtasksCompleted
                             ? NoteOSDesign.Color.success
-                            : NoteOSDesign.Color.textTertiary
+                            : NoteOSDesign.Color.textSecondary
                     )
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 3)
-                    .background(Color.primary.opacity(0.06).continuousRoundedCorners(NoteOSDesign.Radius.sm))
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3.5)
+                    .background(
+                        ZStack {
+                            if task.allSubtasksCompleted {
+                                NoteOSDesign.Color.success.opacity(0.12)
+                            } else {
+                                Color.primary.opacity(0.06)
+                            }
+                        }
+                    )
+                    .continuousRoundedCorners(NoteOSDesign.Radius.sm - 2)
                 }
                 .buttonStyle(.plain)
             }
 
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 Button {
-                    withAnimation {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                         isExpanded = true
                         showSubtaskInput.toggle()
                     }
                 } label: {
                     Image(systemName: "plus.circle")
+                        .font(.system(size: 13, weight: .medium))
                 }
 
                 Button(action: { store.deleteTask(task) }) {
                     Image(systemName: "trash")
-                        .foregroundStyle(NoteOSDesign.Color.destructive.opacity(0.8))
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(NoteOSDesign.Color.destructive.opacity(0.85))
                 }
             }
-            .frame(width: 50, alignment: .trailing)
-            .font(.system(size: 11, weight: .medium))
-            .foregroundStyle(NoteOSDesign.Color.textSecondary)
+            .padding(.trailing, 8)
+            .foregroundStyle(NoteOSDesign.Color.textSecondary.opacity(0.8))
             .buttonStyle(.plain)
             .opacity((isHovered && !isEditing) ? 1.0 : 0.0)
             .animation(NoteOSDesign.Animation.quick, value: isHovered)

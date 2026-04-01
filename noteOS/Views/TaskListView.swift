@@ -184,7 +184,8 @@ struct TaskListView: View {
                     .menuIndicator(.hidden)
                     .frame(width: headerSideSlotWidth, alignment: .center)
                 }
-                .padding(.horizontal, NoteOSDesign.Spacing.md)
+                .padding(.horizontal, NoteOSDesign.Spacing.contentInset)
+                .padding(.top, 4)
                 .frame(height: NoteOSDesign.Size.toolbarHeight)
 
                 // Content Separator with subtle gradient
@@ -237,7 +238,6 @@ struct TaskListView: View {
                                                     .padding(.vertical, 4)
                                                 Spacer()
                                             }
-                                            .background(Material.ultraThin.opacity(0.8))
                                         }
                                     }
                                 } else {
@@ -256,7 +256,7 @@ struct TaskListView: View {
                                     }
                                 }
                             }
-                            .padding(.horizontal, NoteOSDesign.Spacing.sm)
+                            .padding(.horizontal, NoteOSDesign.Spacing.contentInset)
                             .padding(.vertical, NoteOSDesign.Spacing.sm)
                         }
                         .transition(.opacity)
@@ -285,6 +285,7 @@ struct TaskListView: View {
                                 }
                             }
                         )
+                        .padding(.horizontal, NoteOSDesign.Spacing.contentInset)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                     } else if showingSearchInput {
                         SearchTaskField(
@@ -295,6 +296,7 @@ struct TaskListView: View {
                                 }
                             }
                         )
+                        .padding(.horizontal, NoteOSDesign.Spacing.contentInset)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                     } else {
                         HStack(spacing: 12) {
@@ -333,6 +335,7 @@ struct TaskListView: View {
                                 Image(systemName: "magnifyingglass")
                                     .font(.system(size: 13, weight: .medium))
                                     .foregroundStyle(NoteOSDesign.Color.textSecondary)
+                                    .frame(width: 20, height: 20)
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 7)
                                     .background(Color.primary.opacity(0.04))
@@ -340,12 +343,12 @@ struct TaskListView: View {
                             }
                             .buttonStyle(.plain)
                         }
-                        .padding(.horizontal, NoteOSDesign.Spacing.md)
+                        .padding(.horizontal, NoteOSDesign.Spacing.contentInset)
                         .transition(.opacity)
                     }
                 }
-                .padding(.top, 4)
-                .padding(.bottom, NoteOSDesign.Spacing.sm)
+                .padding(.top, 10)
+                .padding(.bottom, NoteOSDesign.Spacing.md)
             }
             .contentShape(Rectangle())
             .onTapGesture {

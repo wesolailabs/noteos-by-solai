@@ -50,6 +50,7 @@ enum NoteOSDesign {
         static let xs: CGFloat  = 6
         static let sm: CGFloat  = 10
         static let md: CGFloat  = 14
+        static let contentInset: CGFloat = 18
         static let lg: CGFloat  = 20
         static let xl: CGFloat  = 28
         static let xxl: CGFloat = 40
@@ -68,19 +69,19 @@ enum NoteOSDesign {
 
     enum Font {
         /// App-level title
-        static let title      = SwiftUI.Font.system(size: 15, weight: .semibold)
+        static let title      = SwiftUI.Font.system(size: 14.5, weight: .semibold)
         /// Section header
-        static let header     = SwiftUI.Font.system(size: 12, weight: .medium)
+        static let header     = SwiftUI.Font.system(size: 11, weight: .medium)
         /// Task title
-        static let taskTitle  = SwiftUI.Font.system(size: 13.5, weight: .regular)
+        static let taskTitle  = SwiftUI.Font.system(size: 12.5, weight: .regular)
         /// Subtask title
-        static let subtask    = SwiftUI.Font.system(size: 12.5, weight: .regular)
+        static let subtask    = SwiftUI.Font.system(size: 11.5, weight: .regular)
         /// Caption / metadata
-        static let caption    = SwiftUI.Font.system(size: 11, weight: .regular)
+        static let caption    = SwiftUI.Font.system(size: 10, weight: .regular)
         /// Monospaced count badge
-        static let badge      = SwiftUI.Font.system(size: 10.5, weight: .semibold, design: .monospaced)
+        static let badge      = SwiftUI.Font.system(size: 10, weight: .semibold, design: .monospaced)
         /// Input field
-        static let input      = SwiftUI.Font.system(size: 13.5, weight: .regular)
+        static let input      = SwiftUI.Font.system(size: 12.5, weight: .regular)
     }
 
     // MARK: Animation
@@ -94,12 +95,12 @@ enum NoteOSDesign {
     // MARK: Dimensions
 
     enum Size {
-        static let checkboxSize: CGFloat     = 18
-        static let subtaskCheckbox: CGFloat  = 15
-        static let rowMinHeight: CGFloat     = 36
-        static let subtaskMinHeight: CGFloat = 30
-        static let popoverWidth: CGFloat     = 400
-        static let popoverMaxHeight: CGFloat = 520
-        static let toolbarHeight: CGFloat    = 48
+        static let checkboxSize: CGFloat     = 16
+        static let subtaskCheckbox: CGFloat  = 13.5
+        static let rowMinHeight: CGFloat     = 32
+        static let subtaskMinHeight: CGFloat = 28
+        static let popoverWidth: CGFloat     = 408
+        static let popoverMaxHeight: CGFloat = 476
+        static let toolbarHeight: CGFloat    = 44
     }
 }
